@@ -8,6 +8,7 @@ const Table = () => {
                 <th className='bg-primary text-primary-content rounded-tl'>Iteration</th>
                 <th className='bg-primary text-primary-content'>X Value</th>
                 <th className='bg-primary text-primary-content rounded-tr'>Y Value</th>
+                <th className='bg-primary text-primary-content rounded-tr'>Error</th>
                 </tr>
             </thead>
             <tbody>
@@ -51,6 +52,11 @@ const Table = () => {
                 </tr>
                 <tr>
                 <th>8</th>
+                <td>-</td>
+                <td>-</td>
+                </tr>
+                <tr>
+                <th>9</th>
                 <td>-</td>
                 <td>-</td>
                 </tr>

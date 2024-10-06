@@ -1,7 +1,7 @@
 // Sidebar.js
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faG, faR, faL, faI, faE } from '@fortawesome/free-solid-svg-icons';
+import { faG, faB, faF, faO, faN , faS} from '@fortawesome/free-solid-svg-icons';
 
 const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -12,7 +12,7 @@ const Sidebar = () => {
         {!isCollapsed && 
           <div>
             <span className='text-2xl text-left'>Numerical</span>
-            <p className='text-sm text-left'>Method</p>
+            <p className='text-2xl text-left'>Method</p>
           </div>
         }
         <button
@@ -29,27 +29,33 @@ const Sidebar = () => {
           </a>
         </li>
         <li className="">
-          <a href="/root-equations" className={`hover:bg-base-300 flex items-center p-4 ${isCollapsed ? 'w-12' : ''}`}>
-            <FontAwesomeIcon icon={faR} className="mr-2" />
-            {!isCollapsed && <span>Root Equations</span>}
+          <a href="/Bisection" className={`hover:bg-base-300 flex items-center p-4 ${isCollapsed ? 'w-12' : ''}`}>
+            <FontAwesomeIcon icon={faB} className="mr-2" />
+            {!isCollapsed && <span>Bisection method</span>}
           </a>
         </li>
         <li className="">
-          <a href="/linear-algebra" className={`hover:bg-base-300 flex items-center p-4 ${isCollapsed ? 'w-12' : ''}`}>
-            <FontAwesomeIcon icon={faL} className="mr-2" />
-            {!isCollapsed && <span>Linear Algebra</span>}
+          <a href="/False-position" className={`hover:bg-base-300 flex items-center p-4 ${isCollapsed ? 'w-12' : ''}`}>
+            <FontAwesomeIcon icon={faF} className="mr-2" />
+            {!isCollapsed && <span>False-position method</span>}
           </a>
         </li>
         <li className="">
-          <a href="/interpolation" className={`hover:bg-base-300 flex items-center p-4 ${isCollapsed ? 'w-12' : ''}`}>
-            <FontAwesomeIcon icon={faI} className="mr-2" />
-            {!isCollapsed && <span>Interpolation</span>}
+          <a href="/One-point" className={`hover:bg-base-300 flex items-center p-4 ${isCollapsed ? 'w-12' : ''}`}>
+            <FontAwesomeIcon icon={faO} className="mr-2" />
+            {!isCollapsed && <span>One-point iteration</span>}
           </a>
         </li>
         <li className="">
-          <a href="/extrapolation" className={`hover:bg-base-300 flex items-center p-4 ${isCollapsed ? 'w-12' : ''}`}>
-            <FontAwesomeIcon icon={faE} className="mr-2" />
-            {!isCollapsed && <span>Extrapolation</span>}
+          <a href="/Newton-raphson" className={`hover:bg-base-300 flex items-center p-4 ${isCollapsed ? 'w-12' : ''}`}>
+            <FontAwesomeIcon icon={faN} className="mr-2" />
+            {!isCollapsed && <span>Newton-raphson method</span>}
+          </a>
+        </li>
+        <li className="">
+          <a href="/Secant" className={`hover:bg-base-300 flex items-center p-4 ${isCollapsed ? 'w-12' : ''}`}>
+            <FontAwesomeIcon icon={faS} className="mr-2" />
+            {!isCollapsed && <span>Secant method</span>}
           </a>
         </li>
       </ul>

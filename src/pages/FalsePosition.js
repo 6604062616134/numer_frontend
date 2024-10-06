@@ -2,14 +2,14 @@ import React from 'react';
 import Sidebar from '../components/Sidebar';
 import Table from '../components/Table';
 
-function Graphical() {
+function FalsePosition() {
   return (
     <div className="flex">
       <Sidebar />
       <div className="flex-1 p-6">
-        <h1 className="text-3xl font-bold">Graphical Method</h1>
+        <h1 className="text-3xl font-bold">False-Position Method</h1>
         <p className="text-justify mt-2">
-          The graphical method is a simple method used to solve linear programming problems. It is used to represent the feasible region graphically and find the optimal solution.
+            The false position method is a root-finding algorithm that uses a succession of roots of secant lines combined with bisection method to approximate a root of a function f. The method is also known as regula falsi, the Latin for false
         </p>
 
         {/*input & table section*/}
@@ -19,24 +19,31 @@ function Graphical() {
 
             <div className="flex gap-4">
               <div className="mt-2 w-full">
-                <label className="block">xStart</label>
+                <label className="block">xL</label>
                 <input type="text" placeholder='0' className="input input-bordered w-full input-primary mt-2" />
               </div>
               <div className="mt-2 w-full">
-                <label className="block">xEnd</label>
+                <label className="block">xR</label>
                 <input type="text" placeholder='10' className="input input-bordered w-full input-primary mt-2" />
               </div>
             </div>
 
-            <div className="mt-2">
-              <label className="block">Function</label>
-              <input type="text" placeholder='f(x)' className="input input-bordered w-full input-primary mt-2" />
+            <div className="flex gap-4 w-full">
+              <div className="mt-2">
+                <label className="block">Roots</label>
+                <input type="text" placeholder='roots' className="input input-bordered w-full input-primary mt-2" />
+              </div>
+
+              <div className="mt-2">
+                <label className="block">Number</label>
+                <input type="text" placeholder='number' className="input input-bordered w-full input-primary mt-2" />
+              </div>
+              <div className="mt-2">
+                <label className="block">Epsilon</label>
+                <input type="text" placeholder='0.00001' className="input input-bordered w-full input-primary mt-2" />
+              </div>
             </div>
 
-            <div className="mt-2">
-              <label className="block">Step</label>
-              <input type="text" placeholder='0.00001' className="input input-bordered w-full input-primary mt-2" />
-            </div>
 
             <div className="mt-6">
               <button className="btn btn-primary btn-block">Solve</button>
@@ -51,10 +58,10 @@ function Graphical() {
         </div>
 
         {/*graph section*/}
-        
+
       </div>
     </div>
   );
 }
 
-export default Graphical;
+export default FalsePosition;
