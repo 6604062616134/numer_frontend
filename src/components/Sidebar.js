@@ -1,7 +1,7 @@
 // Sidebar.js
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faG, faB, faF, faO, faN , faS} from '@fortawesome/free-solid-svg-icons';
+import { faG, faB, faF, faO, faN , faS, faC} from '@fortawesome/free-solid-svg-icons';
 
 const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -55,6 +55,12 @@ const Sidebar = () => {
         <li className="">
           <a href="/Secant" className={`hover:bg-base-300 flex items-center p-4 ${isCollapsed ? 'w-12' : ''}`}>
             <FontAwesomeIcon icon={faS} className="mr-2" />
+            {!isCollapsed && <span>Secant method</span>}
+          </a>
+        </li>
+        <li className="">
+          <a href="/Cramer" className={`hover:bg-base-300 flex items-center p-4 ${isCollapsed ? 'w-12' : ''}`}>
+            <FontAwesomeIcon icon={faC} className="mr-2" />
             {!isCollapsed && <span>Secant method</span>}
           </a>
         </li>

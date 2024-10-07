@@ -11,17 +11,24 @@ const Table = ({ columns, data }) => {
           </tr>
         </thead>
         <tbody>
-          {data && data.length > 0 ? (
-            data.map((row, rowIndex) => (
-              <tr key={rowIndex}>
-                {Object.values(row).map((cell, cellIndex) => (
-                  <td key={cellIndex}>{cell}</td>
-                ))}
-              </tr>
-            ))
+          {data && data.answer_y && data.answer_y.length > 0 ? (
+            (() => {
+              const rows = [];
+              for (let i = 0; i < data.answer_y.length; i++) {
+                rows.push(
+                  <tr key={i}>
+                    <td>{data.answer_x}</td>
+                    <td>{data.answer_y[i]}</td>
+                    <td>{data.iteration[i]}</td>
+                    <td>{data.iterationFound1}</td>
+                  </tr>
+                );
+              }
+              return rows;
+            })()
           ) : (
             <tr>
-              <td colSpan={columns.length} className="text-center">No data</td>
+              <td colSpan={4} className="text-center">No data</td>
             </tr>
           )}
         </tbody>

@@ -16,45 +16,53 @@ function Cramer() {
                     <div className="flex flex-col w-full">
                         <h2 className="text-xl font-semibold">Input</h2>
 
-                        <div className="flex gap-4" >
-                            <div className="mt-2 flex flex-col">
+                        <div className="">
+                            <div className="mt-2 flex flex-row gap-4 justify-center">
+                                <div>
                                 <label className="block">Array A</label>
-                                <div className="flex gap-1">
-                                    <input type="text" placeholder='1' className="input input-bordered w-12 input-primary mt-2" />
-                                    <input type="text" placeholder='2' className="input input-bordered w-12 input-primary mt-2" />
-                                    <input type="text" placeholder='3' className="input input-bordered w-12 input-primary mt-2" />
-                                </div>
-                                <div className="flex gap-1">
-                                    <input type="text" placeholder='4' className="input input-bordered w-12 input-primary mt-2" />
-                                    <input type="text" placeholder='5' className="input input-bordered w-12 input-primary mt-2" />
-                                    <input type="text" placeholder='6' className="input input-bordered w-12 input-primary mt-2" />
-                                </div>
-                                <div className="flex gap-1">
-                                    <input type="text" placeholder='7' className="input input-bordered w-12 input-primary mt-2" />
-                                    <input type="text" placeholder='8' className="input input-bordered w-12 input-primary mt-2" />
-                                    <input type="text" placeholder='9' className="input input-bordered w-12 input-primary mt-2" />
+                                    <div className="flex gap-1">
+                                        <input type="text" placeholder='1' className="input input-bordered w-12 input-primary mt-2" />
+                                        <input type="text" placeholder='2' className="input input-bordered w-12 input-primary mt-2" />
+                                        <input type="text" placeholder='3' className="input input-bordered w-12 input-primary mt-2" />
+                                    </div>
+                                    <div className="flex gap-1">
+                                        <input type="text" placeholder='4' className="input input-bordered w-12 input-primary mt-2" />
+                                        <input type="text" placeholder='5' className="input input-bordered w-12 input-primary mt-2" />
+                                        <input type="text" placeholder='6' className="input input-bordered w-12 input-primary mt-2" />
+                                    </div>
+                                    <div className="flex gap-1">
+                                        <input type="text" placeholder='7' className="input input-bordered w-12 input-primary mt-2" />
+                                        <input type="text" placeholder='8' className="input input-bordered w-12 input-primary mt-2" />
+                                        <input type="text" placeholder='9' className="input input-bordered w-12 input-primary mt-2" />
+                                    </div>
                                 </div>
 
-                                <label className="block mt-4">Array B</label>
-                                <div className="flex flex-col gap-1">
-                                    <input type="text" placeholder="1" className="input input-bordered w-12 input-primary mt-2" />
-                                    <input type="text" placeholder="2" className="input input-bordered w-12 input-primary mt-2" />
-                                    <input type="text" placeholder="3" className="input input-bordered w-12 input-primary mt-2" />
-                                </div>
-                                <div className="mt-2">
-                                    <div className="flex gap-2 flex flex-row">
-                                        <button className="btn btn-ghost btn-sm">+</button>
-                                        <button className="btn btn-ghost btn-sm">-</button>
+                                <div>
+                                    <label className="block">Array B</label>
+                                    <div className="flex flex-col">
+                                        <input type="text" placeholder="1" className="input input-bordered w-12 input-primary mt-2" />
+                                        <input type="text" placeholder="2" className="input input-bordered w-12 input-primary mt-2" />
+                                        <input type="text" placeholder="3" className="input input-bordered w-12 input-primary mt-2" />
                                     </div>
-                                    <button className="btn btn-primary btn-block">Solve</button>
+                                </div>
+
+                            </div>
+
+                            <div className="my-4">
+                                <div className="flex gap-2 flex flex-row justify-center">
+                                    <button className="btn btn-ghost btn-sm">+</button>
+                                    <button className="btn btn-ghost btn-sm">-</button>
                                 </div>
                             </div>
 
+                            <div className='flex flex-row justify-center w-full'>
+                                <button className="btn btn-primary w-1/3">Solve</button>
+                            </div>
                         </div>
 
-                        <div className="flex flex-col gap-4">
+                        <div className="flex flex-col gap-4 mt-4">
                             <h2 className="text-xl font-semibold">Output</h2>
-                            <div className="flex gap-4">
+                            <div className="flex flex-row justify-center gap-4">
                                 <div className="mt-2">
                                     <label className="block">x1</label>
                                     <input type="text" placeholder='0' className="input input-bordered w-20 input-primary mt-2" />

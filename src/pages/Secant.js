@@ -53,7 +53,7 @@ function Secant() {
           <div className="flex flex-col gap-4 w-full">
             <h2 className="text-xl font-semibold">Output Table</h2>
 
-            <Table />
+            {/* <Table /> */}
           </div>
         </div>
 

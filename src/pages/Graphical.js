@@ -36,7 +36,9 @@ function Graphical() {
       });
 
       const result = await response.json();
-      console.log(result);
+      console.log("result --> ", result);
+
+      // console.log("AAA")
       
       // Set output data to state
       setOutputData(result); // Assuming result is an array of objects
