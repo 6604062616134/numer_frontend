@@ -1,67 +1,31 @@
-const Table = () => {
+const Table = ({ columns, data }) => {
   return (
     <div className="h-80 overflow-x-auto rounded mt-2">
-        <table className="table table-pin-rows rounded">
-            {/* head */}
-            <thead>
-                <tr>
-                <th className='bg-primary text-primary-content rounded-tl'>Iteration</th>
-                <th className='bg-primary text-primary-content'>X Value</th>
-                <th className='bg-primary text-primary-content rounded-tr'>Y Value</th>
-                <th className='bg-primary text-primary-content rounded-tr'>Error</th>
-                </tr>
-            </thead>
-            <tbody>
-                {/* row 1 */}
-                <tr>
-                <th>1</th>
-                <td>-</td>
-                <td>-</td>
-                </tr>
-                {/* row 2 */}
-                <tr>
-                <th>2</th>
-                <td>-</td>
-                <td>-</td>
-                </tr>
-                {/* row 3 */}
-                <tr>
-                <th>3</th>
-                <td>-</td>
-                <td>-</td>
-                </tr>
-                <tr>
-                <th>4</th>
-                <td>-</td>
-                <td>-</td>
-                </tr>
-                <tr>
-                <th>5</th>
-                <td>-</td>
-                <td>-</td>
-                </tr>
-                <tr>
-                <th>6</th>
-                <td>-</td>
-                <td>-</td>
-                </tr>
-                <tr>
-                <th>7</th>
-                <td>-</td>
-                <td>-</td>
-                </tr>
-                <tr>
-                <th>8</th>
-                <td>-</td>
-                <td>-</td>
-                </tr>
-                <tr>
-                <th>9</th>
-                <td>-</td>
-                <td>-</td>
-                </tr>
-            </tbody>
-        </table>
+      <table className="table table-pin-rows rounded">
+        {/* head */}
+        <thead>
+          <tr>
+            {columns.map((col, index) => (
+              <th key={index} className="bg-primary text-primary-content">{col}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {data && data.length > 0 ? (
+            data.map((row, rowIndex) => (
+              <tr key={rowIndex}>
+                {Object.values(row).map((cell, cellIndex) => (
+                  <td key={cellIndex}>{cell}</td>
+                ))}
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={columns.length} className="text-center">No data</td>
+            </tr>
+          )}
+        </tbody>
+      </table>
     </div>
   );
 };

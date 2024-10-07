@@ -1,8 +1,50 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import Table from '../components/Table';
 
 function Graphical() {
+  // State variables for inputs
+  const [xStart, setXStart] = useState('');
+  const [xEnd, setXEnd] = useState('');
+  const [func, setFunc] = useState('');
+  const [step, setStep] = useState('');
+  
+  // State for output data from the backend
+  const [outputData, setOutputData] = useState([]);
+
+  const columns = ['Iteration', 'X Value', 'Y Value', 'Error'];
+
+  // Function to handle the solve button click
+  const handleSolve = async () => {
+    const data = {
+      xStart: parseFloat(xStart),
+      xEnd: parseFloat(xEnd),
+      function: func,
+      step: parseFloat(step),
+    };
+
+    //check data send to API
+    console.log("Sending data to API:", data);
+
+    try {
+      const response = await fetch('http://localhost:8000/graphical', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+      console.log(result);
+      
+      // Set output data to state
+      setOutputData(result); // Assuming result is an array of objects
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
   return (
     <div className="flex">
       <Sidebar />
@@ -20,33 +62,60 @@ function Graphical() {
             <div className="flex gap-4">
               <div className="mt-2 w-full">
                 <label className="block">xStart</label>
-                <input type="text" placeholder='0' className="input input-bordered w-full input-primary mt-2" />
+                <input
+                  type="text"
+                  placeholder='0'
+                  className="input input-bordered w-full input-primary mt-2"
+                  value={xStart}
+                  onChange={(e) => setXStart(e.target.value)}
+                />
               </div>
               <div className="mt-2 w-full">
                 <label className="block">xEnd</label>
-                <input type="text" placeholder='10' className="input input-bordered w-full input-primary mt-2" />
+                <input
+                  type="text"
+                  placeholder='10'
+                  className="input input-bordered w-full input-primary mt-2"
+                  value={xEnd}
+                  onChange={(e) => setXEnd(e.target.value)}
+                />
               </div>
             </div>
 
             <div className="mt-2">
               <label className="block">Function</label>
-              <input type="text" placeholder='f(x)' className="input input-bordered w-full input-primary mt-2" />
+              <input
+                type="text"
+                placeholder='f(x)'
+                className="input input-bordered w-full input-primary mt-2"
+                value={func}
+                onChange={(e) => setFunc(e.target.value)}
+              />
             </div>
 
             <div className="mt-2">
               <label className="block">Step</label>
-              <input type="text" placeholder='0.00001' className="input input-bordered w-full input-primary mt-2" />
+              <input
+                type="text"
+                placeholder='0.00001'
+                className="input input-bordered w-full input-primary mt-2"
+                value={step}
+                onChange={(e) => setStep(e.target.value)}
+              />
             </div>
 
             <div className="mt-6">
-              <button className="btn btn-primary btn-block">Solve</button>
+              <button className="btn btn-primary btn-block" onClick={handleSolve}>
+                Solve
+              </button>
             </div>
           </div>
 
           <div className="flex flex-col gap-4 w-full">
             <h2 className="text-xl font-semibold">Output Table</h2>
 
-            <Table />
+            {/* Pass the output data and column names to the Table component */}
+            <Table columns={columns} data={outputData} />
           </div>
         </div>
 
