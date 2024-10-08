@@ -1,7 +1,7 @@
-// Sidebar.js
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faG, faB, faF, faO, faN , faS, faC} from '@fortawesome/free-solid-svg-icons';
+import { faG, faB, faF, faO, faN, faS, faC } from '@fortawesome/free-solid-svg-icons';
+import { NavLink } from 'react-router-dom'; // Import NavLink for routing
 
 const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -22,47 +22,47 @@ const Sidebar = () => {
         </button>
       </div>
       <ul className="menu w-full p-0">
-        <li className="">
-          <a href="/" className={`hover:bg-base-300 flex items-center p-4 ${isCollapsed ? 'w-12' : ''}`}>
+        <li>
+          <NavLink to="/" className={`hover:bg-base-300 flex items-center p-4 ${isCollapsed ? 'w-12' : ''}`}>
             <FontAwesomeIcon icon={faG} className="mr-2" />
             {!isCollapsed && <span>Graphical Method</span>}
-          </a>
+          </NavLink>
         </li>
-        <li className="">
-          <a href="/Bisection" className={`hover:bg-base-300 flex items-center p-4 ${isCollapsed ? 'w-12' : ''}`}>
+        <li>
+          <NavLink to="/Bisection" className={`hover:bg-base-300 flex items-center p-4 ${isCollapsed ? 'w-12' : ''}`}>
             <FontAwesomeIcon icon={faB} className="mr-2" />
-            {!isCollapsed && <span>Bisection method</span>}
-          </a>
+            {!isCollapsed && <span>Bisection Method</span>}
+          </NavLink>
         </li>
-        <li className="">
-          <a href="/False-position" className={`hover:bg-base-300 flex items-center p-4 ${isCollapsed ? 'w-12' : ''}`}>
+        <li>
+          <NavLink to="/FalsePosition" className={`hover:bg-base-300 flex items-center p-4 ${isCollapsed ? 'w-12' : ''}`}>
             <FontAwesomeIcon icon={faF} className="mr-2" />
-            {!isCollapsed && <span>False-position method</span>}
-          </a>
+            {!isCollapsed && <span>False-position Method</span>}
+          </NavLink>
         </li>
-        <li className="">
-          <a href="/One-point" className={`hover:bg-base-300 flex items-center p-4 ${isCollapsed ? 'w-12' : ''}`}>
+        <li>
+          <NavLink to="/Onepoint" className={`hover:bg-base-300 flex items-center p-4 ${isCollapsed ? 'w-12' : ''}`}>
             <FontAwesomeIcon icon={faO} className="mr-2" />
-            {!isCollapsed && <span>One-point iteration</span>}
-          </a>
+            {!isCollapsed && <span>One-point Iteration</span>}
+          </NavLink>
         </li>
-        <li className="">
-          <a href="/Newton-raphson" className={`hover:bg-base-300 flex items-center p-4 ${isCollapsed ? 'w-12' : ''}`}>
+        <li>
+          <NavLink to="/Newton" className={`hover:bg-base-300 flex items-center p-4 ${isCollapsed ? 'w-12' : ''}`}>
             <FontAwesomeIcon icon={faN} className="mr-2" />
-            {!isCollapsed && <span>Newton-raphson method</span>}
-          </a>
+            {!isCollapsed && <span>Newton-raphson Method</span>}
+          </NavLink>
         </li>
-        <li className="">
-          <a href="/Secant" className={`hover:bg-base-300 flex items-center p-4 ${isCollapsed ? 'w-12' : ''}`}>
+        <li>
+          <NavLink to="/Secant" className={`hover:bg-base-300 flex items-center p-4 ${isCollapsed ? 'w-12' : ''}`}>
             <FontAwesomeIcon icon={faS} className="mr-2" />
-            {!isCollapsed && <span>Secant method</span>}
-          </a>
+            {!isCollapsed && <span>Secant Method</span>}
+          </NavLink>
         </li>
-        <li className="">
-          <a href="/Cramer" className={`hover:bg-base-300 flex items-center p-4 ${isCollapsed ? 'w-12' : ''}`}>
+        <li>
+          <NavLink to="/Cramer" className={`hover:bg-base-300 flex items-center p-4 ${isCollapsed ? 'w-12' : ''}`}>
             <FontAwesomeIcon icon={faC} className="mr-2" />
-            {!isCollapsed && <span>Secant method</span>}
-          </a>
+            {!isCollapsed && <span>Cramer's Rule</span>}
+          </NavLink>
         </li>
       </ul>
     </div>

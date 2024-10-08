@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
-import Table from '../components/Table';
+//import Table from '../components/Table';
 
 function Graphical() {
-  // State variables for inputs
+  // ตัวแปรเก็บอินพุทจากช่องอินพุท
   const [xStart, setXStart] = useState('');
   const [xEnd, setXEnd] = useState('');
   const [func, setFunc] = useState('');
   const [step, setStep] = useState('');
-  
-  // State for output data from the backend
+
+  // เก็บเอาท์พุทจาก API
   const [outputData, setOutputData] = useState([]);
 
-  const columns = ['Iteration', 'X Value', 'Y Value', 'Error'];
+  //const columns = ['Iteration', 'X Value', 'Y Value', 'Error'];
 
   // Function to handle the solve button click
   const handleSolve = async () => {
@@ -39,9 +39,9 @@ function Graphical() {
       console.log("result --> ", result);
 
       // console.log("AAA")
-      
+
       // Set output data to state
-      setOutputData(result); // Assuming result is an array of objects
+      setOutputData(result);
     } catch (error) {
       console.error('Error:', error);
     }
@@ -114,15 +114,46 @@ function Graphical() {
           </div>
 
           <div className="flex flex-col gap-4 w-full">
-            <h2 className="text-xl font-semibold">Output Table</h2>
+            <h2 className="text-xl font-semibold">Output</h2>
 
-            {/* Pass the output data and column names to the Table component */}
-            <Table columns={columns} data={outputData} />
+            {/* Check if answer_x and iterationFound are present */}
+            <div className="text-lg">
+              <p>x value : {outputData.answer_x ? outputData.answer_x : 'No data'}</p>
+            </div>
+
+            <div className="flex flex-col gap-4 w-full">
+              <h2 className="text-xl font-semibold">Output Table</h2>
+
+              <div className="h-80 overflow-x-auto rounded mt-2">
+                <table className="table table-pin-rows rounded">
+                  <thead>
+                    <tr>
+                      <th className="bg-primary text-primary-content">Iteration</th>
+                      <th className="bg-primary text-primary-content">Y Value</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {outputData && outputData.answer_y && outputData.answer_y.length > 0 ? (
+                      outputData.answer_y.map((yValue, index) => (
+                        <tr key={index}>
+                          <td>{outputData.iteration[index]}</td>  {/* Map iteration values */}
+                          <td>{yValue}</td>                       {/* Map y values */}
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={2} className="text-center">No data</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
 
         {/*graph section*/}
-        
+
       </div>
     </div>
   );
