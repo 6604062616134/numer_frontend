@@ -4,36 +4,85 @@ import Sidebar from '../components/Sidebar';
 function FalsePosition() {
   const [xL, setXL] = useState('');
   const [xR, setXR] = useState('');
-  const [roots, setRoots] = useState('');
-  const [num, setNum] = useState('');
-  const [epsilon, setEpsilon] = useState('0.00001');
-  const [outputData, setOutputData] = useState(null); // For storing the output data
+  const [fx, setFx] = useState('');
+  const [epsilon, setEpsilon] = useState('');
+  const [outputData, setOutputData] = useState({
+    error: [],
+    iteration: [],
+    x1: [],
+    answer_x1: null,
+    i_found: null
+  });
 
-  // Function to handle the API request
   const handleSolve = async () => {
-    const data = {
-      xL: parseFloat(xL),
-      xR: parseFloat(xR),
-      roots: parseInt(roots),
-      num: parseFloat(num),
-      epsilon: parseFloat(epsilon),
-      mode: "False-position", // Specify the mode
+    let xLNum = parseFloat(xL);
+    let xRNum = parseFloat(xR);
+    let epsilonNum = parseFloat(epsilon);
+    let i = 1;
+    let x1 = 0;
+    let x1_new = 0;
+    let error = 0;
+
+    const evaluateFx = (x) => {
+      try {
+        // Replace ^ with **
+        const sanitizedFx = fx.replace(/\^/g, '**');
+        return eval(sanitizedFx.replace(/x/g, `(${x})`));
+      } catch (error) {
+        console.error("Error evaluating the function:", error);
+        return null;
+      }
     };
 
-    try {
-      const response = await fetch('http://localhost:8000/bisecton-falseposition', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
+    let fxL = evaluateFx(xLNum);
+    let fxR = evaluateFx(xRNum);
+
+    // Check if there is a sign change
+    if (fxL * fxR > 0) {
+      setOutputData({
+        error: [],
+        iteration: [],
+        x1: [],
+        answer_x1: 'No root found in the given interval. Please choose different xL and xR.',
+        i_found: null
       });
-      const result = await response.json();
-      setOutputData(result); // Set the result to state
-      console.log("Result:", result); // For debugging
-    } catch (error) {
-      console.error('Error:', error);
+      return; // Exit the function if no sign change
     }
+
+    let iteration = [];
+    let x1Array = [];
+    let errorArray = [];
+
+    do {
+      x1 = ((xLNum * fxR) - (xRNum * fxL)) / (fxR - fxL);
+      let fx1 = evaluateFx(x1);
+
+      if (fx1 * fxR < 0) {
+        xLNum = x1;
+        fxL = fx1; // Update fxL
+      } else if (fx1 * fxL < 0) {
+        xRNum = x1;
+        fxR = fx1; // Update fxR  
+      }
+
+      error = Math.abs(x1_new - x1);
+      x1_new = x1;
+
+      iteration.push(i);
+      x1Array.push(x1);
+      errorArray.push(error);
+
+      i++;
+    } while (error > epsilonNum && i < 1000);
+
+    // Update output data
+    setOutputData({
+      iteration,
+      x1: x1Array,
+      error: errorArray,
+      answer_x1: x1,
+      i_found: i - 1
+    });
   };
 
   return (
@@ -75,24 +124,14 @@ function FalsePosition() {
 
             <div className="flex gap-4 w-full">
               <div className="mt-2">
-                <label className="block">Roots</label>
+                <label className="block">Function</label>
+                <label className="block">(use ^ to input powers)</label>
                 <input
                   type="text"
-                  placeholder='roots'
+                  placeholder='f(x)'
                   className="input input-bordered w-full input-primary mt-2"
-                  value={roots}
-                  onChange={(e) => setRoots(e.target.value)}
-                />
-              </div>
-
-              <div className="mt-2">
-                <label className="block">Number</label>
-                <input
-                  type="text"
-                  placeholder='number'
-                  className="input input-bordered w-full input-primary mt-2"
-                  value={num}
-                  onChange={(e) => setNum(e.target.value)}
+                  value={fx}
+                  onChange={(e) => setFx(e.target.value)}
                 />
               </div>
               <div className="mt-2">
@@ -115,10 +154,9 @@ function FalsePosition() {
           </div>
 
           <div className="flex flex-col gap-4 w-full">
-
             {/* Output x value */}
+            <h2 className="text-xl font-semibold">Output</h2>
             <div className="text-lg">
-              <h2 className="text-xl font-semibold">Output</h2>
               <p>Answer : {outputData && outputData.answer_x1 ? outputData.answer_x1 : 'No data'}</p>
             </div>
             <h2 className="text-xl font-semibold">Output Table</h2>
@@ -133,12 +171,12 @@ function FalsePosition() {
                   </tr>
                 </thead>
                 <tbody>
-                  {outputData && outputData.iteration2 && outputData.iteration2.length > 0 ? (
-                    outputData.iteration2.map((iteration, index) => (
+                  {outputData && outputData.iteration.length > 0 ? (
+                    outputData.iteration.map((iteration, index) => (
                       <tr key={index}>
                         <td>{iteration}</td>
                         <td>{outputData.x1[index]}</td>
-                        <td>{outputData.error2[index]}</td>
+                        <td>{outputData.error[index]}</td>
                       </tr>
                     ))
                   ) : (

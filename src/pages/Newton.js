@@ -1,59 +1,184 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
-import Table from '../components/Table';
 
 function Newton() {
+  const [fx, setFx] = useState('');
+  const [epsilon, setEpsilon] = useState('');
+  const [x0, setX0] = useState('');
+  const [outputData, setOutputData] = useState({ iteration: [], y: [], answer_x: null, error: [] });
+  const [arr, setArr] = useState([]);
+
+  const parseFx = (fx) => {
+    const regex = /x\^(\d+)\s*-\s*(\d+)/;
+    const match = fx.match(regex);
+    if (match) {
+      const roots = parseFloat(match[1]);
+      const num = parseFloat(match[2]);
+      return { roots, num };
+    }
+    return null;
+  };
+
+  const handleSolve = () => {
+    let x = parseFloat(x0);
+    let epsilonValue = parseFloat(epsilon);
+
+    if (isNaN(x) || isNaN(epsilonValue) || !fx) {
+      alert("Please input valid numbers for x0, epsilon, and a valid function.");
+      return;
+    }
+
+    const parsedFx = parseFx(fx);
+    if (!parsedFx) {
+      alert("Invalid function format");
+      return;
+    }
+
+    const { roots, num } = parsedFx;
+
+    let y = 0;
+    let error = 0;
+    let i = 1;
+    let fxdiff = 0;
+    let fx1 = 0;
+
+    const iterations = [];
+    const yValues = [];
+    const errors = [];
+
+    do {
+      try {
+        fx1 = Math.pow(x, roots) - num;
+        fxdiff = roots * Math.pow(x, roots - 1);
+        y = x - (fx1 / fxdiff);
+        error = Math.abs(y - x);
+        x = y;
+
+        if (!isFinite(y)) {
+          alert("Error: The result is infinity. This might be due to division by zero or overflow.");
+          return;
+        }
+
+        if (isNaN(y)) {
+          alert("Error: The result is NaN (Not a Number). Please check your input function.");
+          return;
+        }
+
+        iterations.push(i);
+        yValues.push(y);
+        errors.push(error);
+
+      } catch (err) {
+        alert("Error in function evaluation");
+        return;
+      }
+
+      i++;
+    } while (error > epsilonValue);
+
+    setOutputData({
+      iteration: iterations,
+      y: yValues,
+      answer_x: x,
+      error: errors
+    });
+    setArr(yValues);
+  };
+
+
   return (
     <div className="flex">
       <Sidebar />
       <div className="flex-1 p-6">
-        <h1 className="text-3xl font-bold">Newton-raphson method</h1>
+        <h1 className="text-3xl font-bold">Newton-Raphson method</h1>
         <p className="text-justify mt-2">
-            The Newton-Raphson method is a root-finding algorithm that uses a succession of roots of secant lines combined with bisection method to approximate a root of a function f. The method is also known as regula falsi, the Latin for false
+          The Newton-Raphson method is a root-finding algorithm that uses a succession of roots of secant lines combined with the bisection method to approximate a root of a function.
         </p>
 
-        {/*input & table section*/}
+        {/* Input & Table Section */}
         <div className="flex flex-col lg:flex-row mt-6 gap-6">
-          <div className='flex flex-col w-full'>
+          <div className="flex flex-col w-full">
             <h2 className="text-xl font-semibold">Input</h2>
 
             <div className="flex gap-4 w-full">
               <div className="mt-2">
-                <label className="block">Roots</label>
-                <input type="text" placeholder='roots' className="input input-bordered w-full input-primary mt-2" />
-              </div>
-
-              <div className="mt-2">
-                <label className="block">Number</label>
-                <input type="text" placeholder='number' className="input input-bordered w-full input-primary mt-2" />
+                <label className="block">Function</label>
+                <label className="block">(use ^ to input powers)</label>
+                <input
+                  type="text"
+                  placeholder='f(x)'
+                  className="input input-bordered w-full input-primary mt-2"
+                  value={fx}
+                  onChange={(e) => setFx(e.target.value)}
+                />
               </div>
 
               <div className="mt-2">
                 <label className="block">Epsilon</label>
-                <input type="text" placeholder='0.00001' className="input input-bordered w-full input-primary mt-2" />
+                <input
+                  type="text"
+                  placeholder='0.00001'
+                  className="input input-bordered w-full input-primary mt-2"
+                  value={epsilon}
+                  onChange={(e) => setEpsilon(e.target.value)}
+                />
               </div>
 
               <div className="mt-2">
-                <label className="block">x start</label>
-                <input type="text" placeholder='x0' className="input input-bordered w-full input-primary mt-2" />
+                <label className="block">x Start</label>
+                <input
+                  type="text"
+                  placeholder='x0'
+                  className="input input-bordered w-full input-primary mt-2"
+                  value={x0}
+                  onChange={(e) => setX0(e.target.value)}
+                />
               </div>
             </div>
 
-
             <div className="mt-6">
-              <button className="btn btn-primary btn-block">Solve</button>
+              <button className="btn btn-primary btn-block" onClick={handleSolve}>Solve</button>
             </div>
           </div>
 
           <div className="flex flex-col gap-4 w-full">
+            <h2 className="text-xl font-semibold">Output</h2>
+
+            <div className="text-lg">
+              <p>Answer : {outputData.answer_x ? outputData.answer_x.toFixed(6) : 'No data'}</p>
+              <p>Iteration : {outputData.iteration ? outputData.iteration.length : 'No data'}</p>
+            </div>
             <h2 className="text-xl font-semibold">Output Table</h2>
 
-            <Table />
+            <table className="table table-pin-rows rounded">
+              <thead>
+                <tr>
+                  <th className="bg-primary text-primary-content">Iteration</th>
+                  <th className="bg-primary text-primary-content">Y Value</th>
+                  <th className="bg-primary text-primary-content">Error</th>
+                </tr>
+              </thead>
+              <tbody>
+                {outputData.iteration.length > 0 ? (
+                  outputData.iteration.map((iteration, index) => (
+                    <tr key={index}>
+                      <td>{iteration}</td>
+                      <td>{outputData.y[index].toFixed(6)}</td>
+                      <td>{outputData.error[index].toFixed(6)}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={3} className="text-center">No data</td>
+                  </tr>
+                )}
+              </tbody>
+
+            </table>
           </div>
         </div>
 
-        {/*graph section*/}
-
+        {/* Graph Section */}
       </div>
     </div>
   );

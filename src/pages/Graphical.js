@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
-//import Table from '../components/Table';
 
 function Graphical() {
   // ตัวแปรเก็บอินพุทจากช่องอินพุท
@@ -8,42 +7,78 @@ function Graphical() {
   const [xEnd, setXEnd] = useState('');
   const [func, setFunc] = useState('');
   const [step, setStep] = useState('');
+  const [outputData, setOutputData] = useState({ iteration: [], answer_y: [], answer_x: null });
+  const [arr, setArr] = useState([]); // State สำหรับเก็บข้อมูล arr ที่จะใช้ในตาราง
+  const [lengthTable, setLengthTable] = useState(0); // State สำหรับเก็บ length_table
 
-  // เก็บเอาท์พุทจาก API
-  const [outputData, setOutputData] = useState([]);
-
-  //const columns = ['Iteration', 'X Value', 'Y Value', 'Error'];
-
-  // Function to handle the solve button click
   const handleSolve = async () => {
-    const data = {
-      xStart: parseFloat(xStart),
-      xEnd: parseFloat(xEnd),
-      function: func,
-      step: parseFloat(step),
-    };
+    if (!xStart || !xEnd || !func || !step) {
+      alert("Please fill all input fields.");
+      return;
+    }
 
-    //check data send to API
-    console.log("Sending data to API:", data);
+    const xStartNum = parseFloat(xStart);
+    const xEndNum = parseFloat(xEnd);
+    const stepNum = parseFloat(step);
 
-    try {
-      const response = await fetch('http://localhost:8000/graphical', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
+    const numbers = func.match(/-?\d+/g);
+    if (!numbers || numbers.length < 2) {
+      alert("Invalid function format. Please enter a valid linear function.");
+      return;
+    }
 
-      const result = await response.json();
-      console.log("result --> ", result);
+    const num1 = parseFloat(numbers[0]);
+    const num2 = parseFloat(numbers[1]);
 
-      // console.log("AAA")
+    let y0 = 0;
+    let y1 = 0;
+    let y2 = 0;
+    let found = false;
+    let lower, upper;
+    let epsilon = 0.0001;
 
-      // Set output data to state
-      setOutputData(result);
-    } catch (error) {
-      console.error('Error:', error);
+    let iterationFound1 = null;
+    let iteration = [];
+    let answer_y = [];
+    let answer_x = null;
+
+    for (let i = xStartNum; i <= xEndNum; i++) {
+      y0 = num1 * i + num2;
+      y1 = num1 * (i + 1) + num2;
+
+      if (y0 * y1 < 0) {
+        iterationFound1 = i;
+        found = true;
+        lower = i;
+        upper = i + 1;
+        break;
+      }
+    }
+
+    if (found) {
+      for (let j = lower; j <= upper; j += stepNum) {
+        y2 = num1 * (j + stepNum) + num2;
+
+        iteration.push(j);
+        answer_y.push(y2);
+
+        if ((y2 < epsilon && y2 > 0) || y2 == 0) {
+          answer_x = j;
+          setOutputData({ iteration, answer_y, answer_x });
+
+          let length_table = answer_y.length > 20 ? answer_y.length - 20 : 0;
+          let slicedArr = answer_y.slice(length_table);
+          
+          setArr(slicedArr);  // เก็บค่า arr ไว้ใน state
+          setLengthTable(length_table);  // เก็บค่า length_table ไว้ใน state
+
+          console.log(slicedArr);
+          return;
+        }
+      }
+      setOutputData({ message: "No root found with this position" });
+    } else {
+      setOutputData({ message: "No root found in this range" });
     }
   };
 
@@ -116,9 +151,8 @@ function Graphical() {
           <div className="flex flex-col gap-4 w-full">
             <h2 className="text-xl font-semibold">Output</h2>
 
-            {/* Check if answer_x and iterationFound are present */}
             <div className="text-lg">
-              <p>x value : {outputData.answer_x ? outputData.answer_x : 'No data'}</p>
+              <p>Answer : {outputData.answer_x ? outputData.answer_x : 'No data'}</p>
             </div>
 
             <div className="flex flex-col gap-4 w-full">
@@ -133,11 +167,11 @@ function Graphical() {
                     </tr>
                   </thead>
                   <tbody>
-                    {outputData && outputData.answer_y && outputData.answer_y.length > 0 ? (
-                      outputData.answer_y.map((yValue, index) => (
+                    {arr.length > 0 ? (
+                      arr.map((yValue, index) => (
                         <tr key={index}>
-                          <td>{outputData.iteration[index]}</td>  {/* Map iteration values */}
-                          <td>{yValue}</td>                       {/* Map y values */}
+                          <td>{outputData.iteration[lengthTable + index]}</td> {/* ใช้ index ที่สอดคล้องกับการ slice */}
+                          <td>{yValue}</td>
                         </tr>
                       ))
                     ) : (
@@ -146,14 +180,12 @@ function Graphical() {
                       </tr>
                     )}
                   </tbody>
+
                 </table>
               </div>
             </div>
           </div>
         </div>
-
-        {/*graph section*/}
-
       </div>
     </div>
   );

@@ -4,36 +4,83 @@ import Sidebar from '../components/Sidebar';
 function Bisection() {
   const [xL, setXL] = useState('');
   const [xR, setXR] = useState('');
-  const [roots, setRoots] = useState('');
-  const [num, setNum] = useState('');
-  const [epsilon, setEpsilon] = useState('0.00001');
-  const [outputData, setOutputData] = useState(null); // For storing the output data
+  const [fx, setFx] = useState('');
+  const [epsilon, setEpsilon] = useState('');
+  const [outputData, setOutputData] = useState({
+    error: [],
+    iteration: [],
+    xM: [],
+    answer_xM: null,
+    i_found: null
+  });
 
-  // Function to handle the API request
   const handleSolve = async () => {
-    const data = {
-      xL: parseFloat(xL),
-      xR: parseFloat(xR),
-      roots: parseInt(roots),
-      num: parseFloat(num),
-      epsilon: parseFloat(epsilon),
-      mode: "Bisection",
+    let xLNum = parseFloat(xL);
+    let xRNum = parseFloat(xR);
+    let epsilonNum = parseFloat(epsilon);
+    let i = 1;
+    let xM = 0;
+    let xm_new = 0;
+    let error = 0;
+
+    const evaluateFx = (x) => {
+      try {
+        const sanitizedFx = fx.replace(/\^/g, '**');
+        return eval(sanitizedFx.replace(/x/g, `(${x})`));
+      } catch (error) {
+        console.error("Error evaluating the function:", error);
+        return null;
+      }
     };
 
-    try {
-      const response = await fetch('http://localhost:8000/bisecton-falseposition', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
+    let iteration = [];
+    let xMArray = [];
+    let errorArray = [];
+
+    let fxL = evaluateFx(xLNum);
+    let fxR = evaluateFx(xRNum);
+
+    // Check if the function has opposite signs at the boundaries
+    if (fxL * fxR > 0) {
+      setOutputData({
+        iteration,
+        xM: xMArray,
+        error: errorArray,
+        answer_xM: "No root found: The function does not cross the x-axis in the specified interval.",
+        i_found: null
       });
-      const result = await response.json();
-      setOutputData(result); // Set the result to state
-      console.log("Result:", result); // For debugging
-    } catch (error) {
-      console.error('Error:', error);
+      return; // Exit early if there's no root
     }
+
+    do {
+      xM = (xLNum + xRNum) / 2;
+      let fxm = evaluateFx(xM);
+
+      // Interval adjustment
+      if (fxm * fxR < 0) {
+        xLNum = xM;
+      } else if (fxm * fxL < 0) {
+        xRNum = xM;
+      }
+
+      error = Math.abs(xm_new - xM);
+      xm_new = xM;
+
+      iteration.push(i);
+      xMArray.push(xM);
+      errorArray.push(error);
+
+      i++;
+    } while (error > epsilonNum && i < 1000);
+
+    // Update output data
+    setOutputData({
+      iteration,
+      xM: xMArray,
+      error: errorArray,
+      answer_xM: xM,
+      i_found: i - 1
+    });
   };
 
   return (
@@ -45,7 +92,6 @@ function Bisection() {
           The bisection method is a root-finding method that applies to any continuous function for which one knows two values with opposite signs.
         </p>
 
-        {/* Input & table section */}
         <div className="flex flex-col lg:flex-row mt-6 gap-6">
           <div className='flex flex-col w-full'>
             <h2 className="text-xl font-semibold">Input</h2>
@@ -75,24 +121,14 @@ function Bisection() {
 
             <div className="flex gap-4 w-full">
               <div className="mt-2">
-                <label className="block">Roots</label>
+                <label className="block">Function</label>
+                <label className="block">(use ^ to input powers)</label>
                 <input
                   type="text"
-                  placeholder='roots'
+                  placeholder='f(x)'
                   className="input input-bordered w-full input-primary mt-2"
-                  value={roots}
-                  onChange={(e) => setRoots(e.target.value)}
-                />
-              </div>
-
-              <div className="mt-2">
-                <label className="block">Number</label>
-                <input
-                  type="text"
-                  placeholder='number'
-                  className="input input-bordered w-full input-primary mt-2"
-                  value={num}
-                  onChange={(e) => setNum(e.target.value)}
+                  value={fx}
+                  onChange={(e) => setFx(e.target.value)}
                 />
               </div>
               <div className="mt-2">
@@ -115,12 +151,10 @@ function Bisection() {
           </div>
 
           <div className="flex flex-col gap-4 w-full">
-
-            {/* Output x value */}
-            <div className="text-lg">
               <h2 className="text-xl font-semibold">Output</h2>
-              <p>Answer : {outputData && outputData.answer_xM ? outputData.answer_xM : 'No data'}</p>
-            </div>
+              <div className="text-lg">
+                <p>Answer : {outputData.answer_xM ? outputData.answer_xM : 'No data'}</p>
+              </div>
             <h2 className="text-xl font-semibold">Output Table</h2>
 
             <div className="h-80 overflow-x-auto rounded mt-2">
@@ -133,7 +167,7 @@ function Bisection() {
                   </tr>
                 </thead>
                 <tbody>
-                  {outputData && outputData.iteration.length > 0 ? (
+                  {outputData.iteration.length > 0 ? (
                     outputData.iteration.map((iteration, index) => (
                       <tr key={index}>
                         <td>{iteration}</td>
@@ -151,8 +185,6 @@ function Bisection() {
             </div>
           </div>
         </div>
-
-        {/* Graph section */}
       </div>
     </div>
   );
