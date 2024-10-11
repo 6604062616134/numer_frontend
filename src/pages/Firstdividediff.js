@@ -1,0 +1,1 @@
+//รับ mode forward backward central

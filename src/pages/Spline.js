@@ -1,0 +1,1 @@
+//รับ mode(linear qaud poly)
