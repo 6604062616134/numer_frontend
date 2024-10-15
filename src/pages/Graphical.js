@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
+import Plot from 'react-plotly.js';
 
 function Graphical() {
   // ตัวแปรเก็บอินพุทจากช่องอินพุท
@@ -68,7 +69,7 @@ function Graphical() {
 
           let length_table = answer_y.length > 20 ? answer_y.length - 20 : 0;
           let slicedArr = answer_y.slice(length_table);
-          
+
           setArr(slicedArr);  // เก็บค่า arr ไว้ใน state
           setLengthTable(length_table);  // เก็บค่า length_table ไว้ใน state
 
@@ -82,16 +83,36 @@ function Graphical() {
     }
   };
 
+  const xRange = 100;
+
+  // ฟังก์ชันที่ใช้ในการประมวลผลสมการ
+
+  // ฟังก์ชันที่ใช้ในการประมวลผลสมการ
+  const calculateY = (x, eq) => {
+    try {
+      // ใช้ eval และแทนที่ 'x' ในสมการ
+      return eval(eq.replace(/x/g, x)); 
+    } catch (error) {
+      console.error('Error evaluating the equation:', error);
+      return null; // คืนค่า null ถ้าเกิดข้อผิดพลาด
+    }
+  };
+
+  // สร้างข้อมูลสำหรับกราฟ
+  const xValues = Array.from({ length: 201 }, (_, i) => i - xRange); // x จาก -100 ถึง 100
+  const yValues = xValues.map(x => calculateY(x, func)); // คำนวณ y จาก x
+
+  //เอาบรรทัดนี้ บรรทัด sidebar และบรรทัดต่อจาก sidebar ไปใส่ไฟล์อื่นด้วย 
+  const [isCollapsed, setIsCollapsed] = useState(false);
   return (
-    <div className="flex">
-      <Sidebar />
-      <div className="flex-1 p-6">
+    <div className="flex min-h-screen">
+      <Sidebar onToggle={(collapsed) => setIsCollapsed(collapsed)} />
+      <div className={`flex-1 p-6 transition-all duration-300 ${isCollapsed ? 'ml-20' : 'ml-64'}`}>
         <h1 className="text-3xl font-bold">Graphical Method</h1>
         <p className="text-justify mt-2">
           The graphical method is a simple method used to solve linear programming problems. It is used to represent the feasible region graphically and find the optimal solution.
         </p>
 
-        {/*input & table section*/}
         <div className="flex flex-col lg:flex-row mt-6 gap-6">
           <div className='flex flex-col w-full'>
             <h2 className="text-xl font-semibold">Input</h2>
@@ -107,6 +128,7 @@ function Graphical() {
                   onChange={(e) => setXStart(e.target.value)}
                 />
               </div>
+
               <div className="mt-2 w-full">
                 <label className="block">xEnd</label>
                 <input
@@ -118,27 +140,29 @@ function Graphical() {
                 />
               </div>
             </div>
+            
+            <div className="flex gap-4 w-full">
+              <div className="mt-2 w-full">
+                <label className="block">Function</label>
+                <input
+                  type="text"
+                  placeholder='f(x)'
+                  className="input input-bordered w-full input-primary mt-2"
+                  value={func}
+                  onChange={(e) => setFunc(e.target.value)}
+                />
+              </div>
 
-            <div className="mt-2">
-              <label className="block">Function</label>
-              <input
-                type="text"
-                placeholder='f(x)'
-                className="input input-bordered w-full input-primary mt-2"
-                value={func}
-                onChange={(e) => setFunc(e.target.value)}
-              />
-            </div>
-
-            <div className="mt-2">
-              <label className="block">Step</label>
-              <input
-                type="text"
-                placeholder='0.00001'
-                className="input input-bordered w-full input-primary mt-2"
-                value={step}
-                onChange={(e) => setStep(e.target.value)}
-              />
+              <div className="mt-2 w-full">
+                <label className="block">Step</label>
+                <input
+                  type="text"
+                  placeholder='0.00001'
+                  className="input input-bordered w-full input-primary mt-2"
+                  value={step}
+                  onChange={(e) => setStep(e.target.value)}
+                />
+              </div>
             </div>
 
             <div className="mt-6">
@@ -146,15 +170,16 @@ function Graphical() {
                 Solve
               </button>
             </div>
+
+            <div className='mt-4'>
+              <h2 className="text-xl font-semibold">Output</h2>
+              <div className="text-lg">
+                <p>Answer : {outputData.answer_x ? outputData.answer_x : 'No data'}</p>
+              </div>
+            </div>
           </div>
 
           <div className="flex flex-col gap-4 w-full">
-            <h2 className="text-xl font-semibold">Output</h2>
-
-            <div className="text-lg">
-              <p>Answer : {outputData.answer_x ? outputData.answer_x : 'No data'}</p>
-            </div>
-
             <div className="flex flex-col gap-4 w-full">
               <h2 className="text-xl font-semibold">Output Table</h2>
 
@@ -185,6 +210,48 @@ function Graphical() {
               </div>
             </div>
           </div>
+        </div>
+
+        <div className='w-full flex justify-center bg-base-100'>
+          <Plot
+            data={[
+              {
+                x: xValues,
+                y: yValues,
+                type: 'scatter',
+                mode: 'lines',
+                marker: { color: 'black' },
+              },
+            ]}
+            layout={{ 
+              width: '100%', // กำหนดให้กราฟมีความกว้าง 100%
+              height: 400, 
+              title: func ? `Graph of ${func}` : 'Graph', // แสดงชื่อกราฟตาม func
+              paper_bgcolor: '#ffefcc', // เปลี่ยนสีพื้นหลังของกราฟ
+              plot_bgcolor: '#ffefcc', // เปลี่ยนสีพื้นหลังของพื้นที่กราฟ
+              xaxis: {
+                // showline: false,
+                // zeroline: false,
+                // ticks: '',
+                // title: '',
+                range: [-90, 90], // Set the initial zoom level for x-axis
+              },
+              yaxis: {
+                // title: 'Y-axis Title',
+                // autorange: true,
+                // automargin: true,
+                range: [-100, 100], // Set the initial zoom level for y-axis
+              },
+              margin: {
+                l: 40, // ระยะห่างด้านซ้าย
+                r: 40, // ระยะห่างด้านขวา
+                t: 40, // ระยะห่างด้านบน
+                b: 40, // ระยะห่างด้านล่าง
+                pad: 0, // ระยะห่างภายใน
+              },
+            }}
+            config={{ responsive: true }} // ทำให้กราฟตอบสนองต่อการเปลี่ยนแปลงขนาดหน้าต่าง
+          />
         </div>
       </div>
     </div>

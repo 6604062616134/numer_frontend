@@ -85,100 +85,102 @@ function Newton() {
     setArr(yValues);
   };
 
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
-    <div className="flex">
-      <Sidebar />
-      <div className="flex-1 p-6">
-        <h1 className="text-3xl font-bold">Newton-Raphson method</h1>
-        <p className="text-justify mt-2">
-          The Newton-Raphson method is a root-finding algorithm that uses a succession of roots of secant lines combined with the bisection method to approximate a root of a function.
-        </p>
+    <div className="flex min-h-screen">
+      <Sidebar onToggle={(collapsed) => setIsCollapsed(collapsed)} />
+      <div className={`flex-1 p-6 transition-all duration-300 ${isCollapsed ? 'ml-20' : 'ml-64'}`}>
+        <div className="flex-1 p-6">
+          <h1 className="text-3xl font-bold">Newton-Raphson method</h1>
+          <p className="text-justify mt-2">
+            The Newton-Raphson method is a root-finding algorithm that uses a succession of roots of secant lines combined with the bisection method to approximate a root of a function.
+          </p>
 
-        {/* Input & Table Section */}
-        <div className="flex flex-col lg:flex-row mt-6 gap-6">
-          <div className="flex flex-col w-full">
-            <h2 className="text-xl font-semibold">Input</h2>
+          {/* Input & Table Section */}
+          <div className="flex flex-col lg:flex-row mt-6 gap-6">
+            <div className="flex flex-col w-full">
+              <h2 className="text-xl font-semibold">Input</h2>
 
-            <div className="flex gap-4 w-full">
-              <div className="mt-2">
-                <label className="block">Function</label>
-                <label className="block">(use ^ to input powers)</label>
-                <input
-                  type="text"
-                  placeholder='f(x)'
-                  className="input input-bordered w-full input-primary mt-2"
-                  value={fx}
-                  onChange={(e) => setFx(e.target.value)}
-                />
+              <div className="flex gap-4 w-full">
+                <div className="mt-2">
+                  <label className="block">Function</label>
+                  <input
+                    type="text"
+                    placeholder='f(x) (use ^ to input powers)'
+                    className="input input-bordered w-full input-primary mt-2"
+                    value={fx}
+                    onChange={(e) => setFx(e.target.value)}
+                  />
+                </div>
+
+                <div className="mt-2">
+                  <label className="block">Epsilon</label>
+                  <input
+                    type="text"
+                    placeholder='0.00001'
+                    className="input input-bordered w-full input-primary mt-2"
+                    value={epsilon}
+                    onChange={(e) => setEpsilon(e.target.value)}
+                  />
+                </div>
+
+                <div className="mt-2">
+                  <label className="block">x Start</label>
+                  <input
+                    type="text"
+                    placeholder='x0'
+                    className="input input-bordered w-full input-primary mt-2"
+                    value={x0}
+                    onChange={(e) => setX0(e.target.value)}
+                  />
+                </div>
               </div>
 
-              <div className="mt-2">
-                <label className="block">Epsilon</label>
-                <input
-                  type="text"
-                  placeholder='0.00001'
-                  className="input input-bordered w-full input-primary mt-2"
-                  value={epsilon}
-                  onChange={(e) => setEpsilon(e.target.value)}
-                />
-              </div>
-
-              <div className="mt-2">
-                <label className="block">x Start</label>
-                <input
-                  type="text"
-                  placeholder='x0'
-                  className="input input-bordered w-full input-primary mt-2"
-                  value={x0}
-                  onChange={(e) => setX0(e.target.value)}
-                />
+              <div className="mt-6">
+                <button className="btn btn-primary btn-block" onClick={handleSolve}>Solve</button>
               </div>
             </div>
 
-            <div className="mt-6">
-              <button className="btn btn-primary btn-block" onClick={handleSolve}>Solve</button>
-            </div>
-          </div>
+            <div className="flex flex-col gap-4 w-full">
+              <h2 className="text-xl font-semibold">Output</h2>
 
-          <div className="flex flex-col gap-4 w-full">
-            <h2 className="text-xl font-semibold">Output</h2>
+              <div className="text-lg">
+                <p>Answer : {outputData.answer_x ? outputData.answer_x.toFixed(6) : 'No data'}</p>
+                <p>Iteration : {outputData.iteration ? outputData.iteration.length : 'No data'}</p>
+              </div>
+              <h2 className="text-xl font-semibold">Output Table</h2>
 
-            <div className="text-lg">
-              <p>Answer : {outputData.answer_x ? outputData.answer_x.toFixed(6) : 'No data'}</p>
-              <p>Iteration : {outputData.iteration ? outputData.iteration.length : 'No data'}</p>
-            </div>
-            <h2 className="text-xl font-semibold">Output Table</h2>
-
-            <table className="table table-pin-rows rounded">
-              <thead>
-                <tr>
-                  <th className="bg-primary text-primary-content">Iteration</th>
-                  <th className="bg-primary text-primary-content">Y Value</th>
-                  <th className="bg-primary text-primary-content">Error</th>
-                </tr>
-              </thead>
-              <tbody>
-                {outputData.iteration.length > 0 ? (
-                  outputData.iteration.map((iteration, index) => (
-                    <tr key={index}>
-                      <td>{iteration}</td>
-                      <td>{outputData.y[index].toFixed(6)}</td>
-                      <td>{outputData.error[index].toFixed(6)}</td>
-                    </tr>
-                  ))
-                ) : (
+              <table className="table table-pin-rows rounded">
+                <thead>
                   <tr>
-                    <td colSpan={3} className="text-center">No data</td>
+                    <th className="bg-primary text-primary-content">Iteration</th>
+                    <th className="bg-primary text-primary-content">Y Value</th>
+                    <th className="bg-primary text-primary-content">Error</th>
                   </tr>
-                )}
-              </tbody>
+                </thead>
+                <tbody>
+                  {outputData.iteration.length > 0 ? (
+                    outputData.iteration.map((iteration, index) => (
+                      <tr key={index}>
+                        <td>{iteration}</td>
+                        <td>{outputData.y[index].toFixed(6)}</td>
+                        <td>{outputData.error[index].toFixed(6)}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={3} className="text-center">No data</td>
+                    </tr>
+                  )}
+                </tbody>
 
-            </table>
+              </table>
+            </div>
           </div>
-        </div>
 
-        {/* Graph Section */}
+          {/* Graph Section */}
+        </div>
       </div>
     </div>
   );

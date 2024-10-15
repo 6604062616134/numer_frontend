@@ -85,112 +85,115 @@ function FalsePosition() {
     });
   };
 
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
   return (
-    <div className="flex">
-      <Sidebar />
-      <div className="flex-1 p-6">
-        <h1 className="text-3xl font-bold">False-Position Method</h1>
-        <p className="text-justify mt-2">
-          The false position method is a root-finding algorithm that uses a succession of roots of secant lines combined with the bisection method to approximate a root of a function f.
-        </p>
+    <div className="flex min-h-screen">
+      <Sidebar onToggle={(collapsed) => setIsCollapsed(collapsed)} />
+      <div className={`flex-1 p-6 transition-all duration-300 ${isCollapsed ? 'ml-20' : 'ml-64'}`}>
+        <div className="flex-1 p-6">
+          <h1 className="text-3xl font-bold">False-Position Method</h1>
+          <p className="text-justify mt-2">
+            The false position method is a root-finding algorithm that uses a succession of roots of secant lines combined with the bisection method to approximate a root of a function f.
+          </p>
 
-        {/* Input & table section */}
-        <div className="flex flex-col lg:flex-row mt-6 gap-6">
-          <div className='flex flex-col w-full'>
-            <h2 className="text-xl font-semibold">Input</h2>
+          {/* Input & table section */}
+          <div className="flex flex-col lg:flex-row mt-6 gap-6">
+            <div className='flex flex-col w-full'>
+              <h2 className="text-xl font-semibold">Input</h2>
 
-            <div className="flex gap-4">
-              <div className="mt-2 w-full">
-                <label className="block">xL</label>
-                <input
-                  type="text"
-                  placeholder='0'
-                  className="input input-bordered w-full input-primary mt-2"
-                  value={xL}
-                  onChange={(e) => setXL(e.target.value)}
-                />
+              <div className="flex gap-4">
+                <div className="mt-2 w-full">
+                  <label className="block">xL</label>
+                  <input
+                    type="text"
+                    placeholder='0'
+                    className="input input-bordered w-full input-primary mt-2"
+                    value={xL}
+                    onChange={(e) => setXL(e.target.value)}
+                  />
+                </div>
+                <div className="mt-2 w-full">
+                  <label className="block">xR</label>
+                  <input
+                    type="text"
+                    placeholder='10'
+                    className="input input-bordered w-full input-primary mt-2"
+                    value={xR}
+                    onChange={(e) => setXR(e.target.value)}
+                  />
+                </div>
               </div>
-              <div className="mt-2 w-full">
-                <label className="block">xR</label>
-                <input
-                  type="text"
-                  placeholder='10'
-                  className="input input-bordered w-full input-primary mt-2"
-                  value={xR}
-                  onChange={(e) => setXR(e.target.value)}
-                />
+
+              <div className="flex gap-4 w-full">
+                <div className="mt-2 w-full">
+                  <label className="block">Function</label>
+                  <input
+                    type="text"
+                    placeholder='f(x) (use ^ to input powers)'
+                    className="input input-bordered w-full input-primary mt-2"
+                    value={fx}
+                    onChange={(e) => setFx(e.target.value)}
+                  />
+                </div>
+                <div className="mt-2 w-full">
+                  <label className="block">Epsilon</label>
+                  <input
+                    type="text"
+                    placeholder='0.00001'
+                    className="input input-bordered w-full input-primary mt-2"
+                    value={epsilon}
+                    onChange={(e) => setEpsilon(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="mt-6">
+                <button className="btn btn-primary btn-block" onClick={handleSolve}>
+                  Solve
+                </button>
               </div>
             </div>
 
-            <div className="flex gap-4 w-full">
-              <div className="mt-2">
-                <label className="block">Function</label>
-                <label className="block">(use ^ to input powers)</label>
-                <input
-                  type="text"
-                  placeholder='f(x)'
-                  className="input input-bordered w-full input-primary mt-2"
-                  value={fx}
-                  onChange={(e) => setFx(e.target.value)}
-                />
+            <div className="flex flex-col gap-4 w-full">
+              {/* Output x value */}
+              <h2 className="text-xl font-semibold">Output</h2>
+              <div className="text-lg">
+                <p>Answer : {outputData && outputData.answer_x1 ? outputData.answer_x1 : 'No data'}</p>
               </div>
-              <div className="mt-2">
-                <label className="block">Epsilon</label>
-                <input
-                  type="text"
-                  placeholder='0.00001'
-                  className="input input-bordered w-full input-primary mt-2"
-                  value={epsilon}
-                  onChange={(e) => setEpsilon(e.target.value)}
-                />
-              </div>
-            </div>
+              <h2 className="text-xl font-semibold">Output Table</h2>
 
-            <div className="mt-6">
-              <button className="btn btn-primary btn-block" onClick={handleSolve}>
-                Solve
-              </button>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-4 w-full">
-            {/* Output x value */}
-            <h2 className="text-xl font-semibold">Output</h2>
-            <div className="text-lg">
-              <p>Answer : {outputData && outputData.answer_x1 ? outputData.answer_x1 : 'No data'}</p>
-            </div>
-            <h2 className="text-xl font-semibold">Output Table</h2>
-
-            <div className="h-80 overflow-x-auto rounded mt-2">
-              <table className="table table-pin-rows rounded">
-                <thead>
-                  <tr>
-                    <th className="bg-primary text-primary-content">Iteration</th>
-                    <th className="bg-primary text-primary-content">X Value (x1)</th>
-                    <th className="bg-primary text-primary-content">Error</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {outputData && outputData.iteration.length > 0 ? (
-                    outputData.iteration.map((iteration, index) => (
-                      <tr key={index}>
-                        <td>{iteration}</td>
-                        <td>{outputData.x1[index]}</td>
-                        <td>{outputData.error[index]}</td>
-                      </tr>
-                    ))
-                  ) : (
+              <div className="h-80 overflow-x-auto rounded mt-2">
+                <table className="table table-pin-rows rounded">
+                  <thead>
                     <tr>
-                      <td colSpan={3} className="text-center">No data</td>
+                      <th className="bg-primary text-primary-content">Iteration</th>
+                      <th className="bg-primary text-primary-content">X Value (x1)</th>
+                      <th className="bg-primary text-primary-content">Error</th>
                     </tr>
-                  )}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {outputData && outputData.iteration.length > 0 ? (
+                      outputData.iteration.map((iteration, index) => (
+                        <tr key={index}>
+                          <td>{iteration}</td>
+                          <td>{outputData.x1[index]}</td>
+                          <td>{outputData.error[index]}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={3} className="text-center">No data</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Graph section */}
+          {/* Graph section */}
+        </div>
       </div>
     </div>
   );

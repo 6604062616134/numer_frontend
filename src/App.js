@@ -40,6 +40,8 @@ import Firstdividediff from './pages/Firstdividediff';
 import Higher from './pages/Higher';
 import MoreAcc from './pages/MoreAcc';
 
+import Test from './pages/Test';
+
 function App() {
   return (
     <div data-theme="cream">
@@ -83,6 +85,8 @@ function App() {
             <Route path="/Firstdividediff" element={<Firstdividediff />} />
             <Route path="/Higher" element={<Higher />} />
             <Route path="/MoreAcc" element={<MoreAcc />} />
+            
+            <Route path="/Test" element={<Test />} />
 
           </Routes>
       </Router>

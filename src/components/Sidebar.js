@@ -1,27 +1,34 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faG, faB, faF, faO, faN, faS, faC ,faL, faJ, faT, faM, faH } from '@fortawesome/free-solid-svg-icons';
+import { faG, faB, faF, faO, faN, faS, faC, faL, faJ, faT, faM, faH } from '@fortawesome/free-solid-svg-icons';
 import { NavLink } from 'react-router-dom'; // Import NavLink for routing
 
-const Sidebar = () => {
+const Sidebar = ({ onToggle }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
+  const handleToggle = () => {
+    const newCollapsed = !isCollapsed;
+    setIsCollapsed(newCollapsed);
+    onToggle(newCollapsed); // ส่งสถานะไปยัง App
+  };
+
   return (
-    <div className={`h-screen bg-base-200 text-base-content transition-all duration-300 p-2 overflow-y-auto ${isCollapsed ? 'w-16' : 'w-64'}`}>
+    <div className={`h-screen fixed bg-base-200 text-base-content p-2 overflow-y-scroll transition-transform duration-300 ${isCollapsed ? 'w-20' : 'w-64'}`}>
       <div className="p-4 text-center text-2xl font-semibold flex justify-between items-center">
-        {!isCollapsed && 
+        {!isCollapsed &&
           <div>
             <span className='text-2xl text-left'>Numerical</span>
             <p className='text-2xl text-left'>Method</p>
           </div>
         }
         <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
+          onClick={handleToggle}
           className="text-base-content hover:text-base-content focus:outline-none">
           {isCollapsed ? '»' : '«'}
         </button>
       </div>
       <ul className="menu w-full p-0">
+        <h1 className={`text-xl text-left p-4 ${isCollapsed ? 'hidden' : 'inline'}`}>Root equations</h1>
         <li>
           <NavLink to="/" className={`hover:bg-base-300 flex items-center p-4 ${isCollapsed ? 'w-12' : ''}`}>
             <FontAwesomeIcon icon={faG} className="mr-2" />
@@ -58,9 +65,9 @@ const Sidebar = () => {
             {!isCollapsed && <span>Secant Method</span>}
           </NavLink>
         </li>
-
+        <h1 className={`text-xl text-left p-4 ${isCollapsed ? 'hidden' : 'inline'}`}>Linear algebraic equations</h1>
         <li>
-          <NavLink to="/Cramer" className={`hover:bg-base-300 flex items-center p-4 mt-4 ${isCollapsed ? 'w-12' : ''}`}>
+          <NavLink to="/Cramer" className={`hover:bg-base-300 flex items-center p-4 ${isCollapsed ? 'w-12' : ''}`}>
             <FontAwesomeIcon icon={faC} className="mr-2" />
             {!isCollapsed && <span>Cramer's Rule</span>}
           </NavLink>
@@ -113,9 +120,9 @@ const Sidebar = () => {
             {!isCollapsed && <span>Conjugate gradient method</span>}
           </NavLink>
         </li>
-
+        <h1 className={`text-xl text-left p-4 ${isCollapsed ? 'hidden' : 'inline'}`}>Interpolation</h1>
         <li>
-          <NavLink to="/Newtondivide" className={`hover:bg-base-300 flex items-center p-4 mt-4 ${isCollapsed ? 'w-12' : ''}`}>
+          <NavLink to="/Newtondivide" className={`hover:bg-base-300 flex items-center p-4 ${isCollapsed ? 'w-12' : ''}`}>
             <FontAwesomeIcon icon={faN} className="mr-2" />
             {!isCollapsed && <span>Newton's divided-differences</span>}
           </NavLink>
@@ -132,22 +139,22 @@ const Sidebar = () => {
             {!isCollapsed && <span>Spline interpolation</span>}
           </NavLink>
         </li>
-
+        <h1 className={`text-xl text-left p-4 ${isCollapsed ? 'hidden' : 'inline'}`}>Extrapolation</h1>
         <li>
-          <NavLink to="/Least" className={`hover:bg-base-300 flex items-center p-4 mt-4 ${isCollapsed ? 'w-12' : ''}`}>
+          <NavLink to="/Least" className={`hover:bg-base-300 flex items-center p-4${isCollapsed ? 'w-12' : ''}`}>
             <FontAwesomeIcon icon={faL} className="mr-2" />
             {!isCollapsed && <span>Least-squares reqression</span>}
           </NavLink>
         </li>
         <li>
           <NavLink to="/Multiple" className={`hover:bg-base-300 flex items-center p-4 ${isCollapsed ? 'w-12' : ''}`}>
-            <FontAwesomeIcon icon={faS} className="mr-2" />
+            <FontAwesomeIcon icon={faM} className="mr-2" />
             {!isCollapsed && <span>Multiple linear reqression</span>}
           </NavLink>
         </li>
-
+        <h1 className={`text-xl text-left p-4 ${isCollapsed ? 'hidden' : 'inline'}`}>Integration</h1>
         <li>
-          <NavLink to="/Trapezoidal" className={`hover:bg-base-300 flex items-center p-4 mt-4 ${isCollapsed ? 'w-12' : ''}`}>
+          <NavLink to="/Trapezoidal" className={`hover:bg-base-300 flex items-center p-4 ${isCollapsed ? 'w-12' : ''}`}>
             <FontAwesomeIcon icon={faT} className="mr-2" />
             {!isCollapsed && <span>Trapezoidal rule</span>}
           </NavLink>
@@ -170,9 +177,9 @@ const Sidebar = () => {
             {!isCollapsed && <span>Composit Simpson's rule</span>}
           </NavLink>
         </li>
-
+        <h1 className={`text-xl text-left p-4 ${isCollapsed ? 'hidden' : 'inline'}`}>Differentiation</h1>
         <li>
-          <NavLink to="/Firstdividediff" className={`hover:bg-base-300 flex items-center p-4 mt-4 ${isCollapsed ? 'w-12' : ''}`}>
+          <NavLink to="/Firstdividediff" className={`hover:bg-base-300 flex items-center p-4 ${isCollapsed ? 'w-12' : ''}`}>
             <FontAwesomeIcon icon={faF} className="mr-2" />
             {!isCollapsed && <span>First divided-difference</span>}
           </NavLink>
