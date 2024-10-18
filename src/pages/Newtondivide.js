@@ -11,6 +11,7 @@ function Newtondivide() {
     const [points, setPoints] = useState(''); // จุดที่ต้องการหา
     const [c, setC] = useState([]); // coefficients c0, c1, c2, ...
     const [output, setOutput] = useState(null); // ค่า y ที่หาได้จาก xValue
+    const [graphData, setGraphData] = useState({ x: [], y: [] });
 
     const handleSolve = () => {
         if (n === '' || x === '' || y === '' || xValue === '' || mode === '') {
@@ -55,6 +56,11 @@ function Newtondivide() {
 
         const result = evaluateNewtonPolynomial(coefficients, selectedX, xValueNumber);
         setOutput(result);
+
+        const graphX = Array.from({ length: 100 }, (_, i) => i - 50); // สร้างค่า x จาก -50 ถึง 49
+        const graphY = graphX.map(val => evaluateNewtonPolynomial(coefficients, selectedX, val)); // คำนวณ y จากฟังก์ชัน
+
+        setGraphData({ x: graphX, y: graphY }); // ตั้งค่าข้อมูลกราฟ
     };
 
     const calculateDividedDifferences = (xArray, yArray) => {
@@ -191,6 +197,36 @@ function Newtondivide() {
                     </div>
                 </div>
                 {/* graph plotกราฟจากฟังก์ชั่น f(x) = ตามสูตรของแต่ละประเภท (แต่ละประเภทฟังก์ชั่นต่างกัน)*/}
+                <div className='w-full flex justify-center bg-base-100'>
+                    <Plot
+                        data={[{
+                            x: graphData.x,
+                            y: graphData.y,
+                            type: 'scatter',
+                            mode: 'lines',
+                            marker: { color: 'black' },
+                        }]}
+                        layout={{
+                            width: '100%',
+                            height: 400,
+                            title: 'Graph of Newton Polynomial',
+                            paper_bgcolor: '#ffefcc',
+                            plot_bgcolor: '#ffefcc',
+                            xaxis: {
+                                range: [-100, 100],
+                            },
+                            yaxis: {
+                                range: [-100, 100],
+                            },
+                            margin: {
+                                l: 40,
+                                r: 40,
+                                t: 40,
+                                b: 40,
+                            },
+                        }}
+                    />
+                </div>
             </div>
         </div>
     );

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import * as math from 'mathjs';
+import Plot from 'react-plotly.js';
 
-//ต้องมีตารางด้วย
 function Conjugate() {
 
     const [isCollapsed, setIsCollapsed] = useState(false);
@@ -11,64 +11,70 @@ function Conjugate() {
     const [arrayA, setArrayA] = useState(Array(metrixSize).fill().map(() => Array(metrixSize).fill('')));
     const [arrayB, setArrayB] = useState(Array(metrixSize).fill(''));
     const [result, setResult] = useState([]);
+    const [plotData, setPlotData] = useState([]);
+
+    const [outputData, setOutputData] = useState({ iteration: [], xM: [], error: [] });
 
     useEffect(() => {
         console.log("Result updated:", result);
+        updatePlotData();
     }, [result]);
 
     const calculateConjugate = () => {
         const rows = arrayA.length;
         const cols = arrayA[0].length;
 
-        // Convert string inputs to numbers for calculations
         const matrixA = arrayA.map(row => row.map(value => parseFloat(value)));
         const matrixB = arrayB.map(value => parseFloat(value));
 
-        // Validate if any input is not a valid number
         if (matrixA.some(row => row.includes(NaN)) || matrixB.includes(NaN)) {
             alert("Please enter valid numbers in the matrices.");
             return;
         }
 
-        // Check for valid matrix dimensions
         if (rows !== cols || matrixA.length !== matrixB.length) {
             alert("Array size does not match matrix dimensions.");
             return;
         }
 
-        // Check if the matrix is symmetric
         const isSymmetric = matrixA.every((row, i) => row.every((value, j) => value === matrixA[j][i]));
         if (!isSymmetric) {
             alert("Matrix A must be symmetric for the conjugate gradient method.");
             return;
         }
 
-        // Initialize the conjugate gradient method
-        let x = Array(metrixSize).fill(0); // Initial guess
-        let r = math.subtract(matrixB, math.multiply(matrixA, x)); // Initial residual r = b - A*x
-        let p = [...r]; // Initial direction p = r
-        let rsOld = math.dot(r, r); // Initial value of r^T * r
-
+        let x = Array(metrixSize).fill(0);
+        let r = math.subtract(matrixB, math.multiply(matrixA, x));
+        let p = [...r];
+        let rsOld = math.dot(r, r);
         const tolerance = 1e-6;
         const maxIterations = 1000;
+        let newOutputData = { iteration: [], xM: [], error: [] };
 
         for (let i = 0; i < maxIterations; i++) {
-            const Ap = math.multiply(matrixA, p); // A * p
-            const alpha = rsOld / math.dot(p, Ap); // Step size α = (r^T * r) / (p^T * A * p)
-            x = math.add(x, math.multiply(alpha, p)); // Update x = x + α * p
-            r = math.subtract(r, math.multiply(alpha, Ap)); // Update residual r = r - α * A * p
+            const Ap = math.multiply(matrixA, p);
+            const alpha = rsOld / math.dot(p, Ap);
+            x = math.add(x, math.multiply(alpha, p));
+            r = math.subtract(r, math.multiply(alpha, Ap));
 
-            const rsNew = math.dot(r, r); // New value of r^T * r
-            if (Math.sqrt(rsNew) < tolerance) {
+            const rsNew = math.dot(r, r);
+            const error = Math.sqrt(rsNew);
+
+            newOutputData.iteration.push(i + 1);  // Store the iteration number
+            newOutputData.xM.push([...x]);         // Store the current x values
+            newOutputData.error.push(error);        // Store the current error
+
+            if (error < tolerance) {
                 break; // Convergence check
             }
 
-            const beta = rsNew / rsOld; // Update β = (r_new^T * r_new) / (r_old^T * r_old)
-            p = math.add(r, math.multiply(beta, p)); // Update direction p = r + β * p
+            const beta = rsNew / rsOld;
+            p = math.add(r, math.multiply(beta, p));
             rsOld = rsNew;
         }
 
-        setResult(x); // Update the state with the result
+        setResult(x);
+        setOutputData(newOutputData);
     };
 
     const handleArrayAChange = (e, i, j) => {
@@ -100,6 +106,33 @@ function Conjugate() {
             setArrayB(Array(metrixSize - 1).fill(''));
         }
     };
+
+    const updatePlotData = () => {
+        // Prepare data for the plot based on the equations
+        if (result.length >= 2) {
+            const xValues = Array.from({ length: 100 }, (_, i) => i - 50); // X values from -50 to 49
+            const yValues1 = xValues.map(x => (result[0] * x + arrayB[0]) / arrayA[0][1]);
+            const yValues2 = xValues.map(x => (result[1] * x + arrayB[1]) / arrayA[1][1]);
+
+            setPlotData([
+                {
+                    x: xValues,
+                    y: yValues1,
+                    type: 'scatter',
+                    mode: 'lines',
+                    name: 'Equation 1',
+                },
+                {
+                    x: xValues,
+                    y: yValues2,
+                    type: 'scatter',
+                    mode: 'lines',
+                    name: 'Equation 2',
+                },
+            ]);
+        }
+    };
+
     return (
         <div className="flex min-h-screen">
             <Sidebar onToggle={(collapsed) => setIsCollapsed(collapsed)} />
@@ -178,8 +211,61 @@ function Conjugate() {
                                     )}
                                 </div>
                             </div>
+                            <h2 className="text-xl font-semibold">Output Table</h2>
+                            <div className="h-80 overflow-x-auto rounded mt-2">
+                                <table className="table table-pin-rows rounded">
+                                    <thead>
+                                        <tr>
+                                            <th className="bg-primary text-primary-content">Iteration</th>
+                                            <th className="bg-primary text-primary-content">X Value</th>
+                                            <th className="bg-primary text-primary-content">Error</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {outputData.iteration.length > 0 ? (
+                                            outputData.iteration.slice(0, 100).map((iteration, index) => (
+                                                <tr key={index}>
+                                                    <td>{iteration}</td>
+                                                    <td>{outputData.xM[index].join(', ')}</td>
+                                                    <td>{outputData.error[index]}</td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan={3} className="text-center">No data</td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
+                </div>
+                <div className='w-full flex justify-center bg-base-100'>
+                    <Plot
+                        data={plotData}
+                        layout={{
+                            width: '100%',
+                            height: 400,
+                            title: 'Graph of the equations',
+                            paper_bgcolor: '#ffefcc',
+                            plot_bgcolor: '#ffefcc',
+                            xaxis: {
+                                range: [-50, 50],
+                                title: 'X values',
+                            },
+                            yaxis: {
+                                range: [-100, 100],
+                                title: 'Y values',
+                            },
+                            margin: {
+                                l: 40,
+                                r: 40,
+                                t: 40,
+                                b: 40,
+                            },
+                        }}
+                    />
                 </div>
             </div>
         </div>

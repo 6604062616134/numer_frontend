@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import * as math from 'mathjs';
+import Plot from 'react-plotly.js';
 
 function Firstdividediff() {
     const [isCollapsed, setIsCollapsed] = useState(false);
@@ -37,6 +38,23 @@ function Firstdividediff() {
             setOutput(null);
         }
     };
+
+    const xRange = 100;
+    const calculateY = (x, fx) => {
+        const sanitizedFx = fx.replace(/\^/g, '**');
+        try {
+            return eval(sanitizedFx.replace(/x/g, `(${x})`));
+        } catch (error) {
+            console.error("Error calculating y values:", error);
+            return 0;
+        }
+    };
+
+    const xValues = Array.from({ length: 201 }, (_, i) => i - xRange);
+    const yValues = xValues.map(x => calculateY(x, fx));
+
+    const yMin = Math.min(...yValues);
+    const yMax = Math.max(...yValues);
 
     return (
         <div className="flex min-h-screen">
@@ -109,6 +127,38 @@ function Firstdividediff() {
                             </div>
                         </div>
                     </div>
+                </div>
+                <div className='w-full flex justify-center bg-base-100'>
+                    <Plot
+                        data={[
+                            {
+                                x: xValues,
+                                y: yValues,
+                                type: 'scatter',
+                                mode: 'lines',
+                                marker: { color: 'black' },
+                            },
+                        ]}
+                        layout={{
+                            width: '100%',
+                            height: 400,
+                            title: fx ? `Graph of ${fx}` : 'Graph',
+                            paper_bgcolor: '#ffefcc',
+                            plot_bgcolor: '#ffefcc',
+                            xaxis: {
+                                range: [-100, 100],
+                            },
+                            yaxis: {
+                                range: [yMin, yMax],
+                            },
+                            margin: {
+                                l: 40,
+                                r: 40,
+                                t: 40,
+                                b: 40,
+                            },
+                        }}
+                    />
                 </div>
             </div>
         </div>

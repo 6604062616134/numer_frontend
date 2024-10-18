@@ -1,6 +1,6 @@
-//มีตาราง แสดงerror
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
+import Plot from 'react-plotly.js';
 
 function Jacobi() {
 
@@ -11,16 +11,17 @@ function Jacobi() {
     const [arrayB, setArrayB] = useState(Array(metrixSize).fill(''));
     const [result, setResult] = useState([]);
 
-    // Initialization for Jacobi
     const [x, setX] = useState(Array(metrixSize).fill(0));  // Initial guess
     const tolerance = 1e-6;
     const maxIterations = 1000;
+    const [outputData, setOutputData] = useState({ iteration: [], xM: [], error: [] });
+    const [plotData, setPlotData] = useState([]);
 
     useEffect(() => {
-        // You can track or log updates to result if necessary
+        console.log("Result updated:", result);
+        updatePlotData();
     }, [result]);
 
-    // Function to calculate Jacobi method
     const calculateJacobi = () => {
         const rows = arrayA.length;
         const cols = arrayA[0].length;
@@ -35,8 +36,9 @@ function Jacobi() {
         const matrixB = arrayB.map(Number); // Convert B array to numbers
 
         let iteration = 0;
-        let error = tolerance + 1;
         let xNew = [...x];  // Deep copy of the initial guess
+        let newOutputData = { iteration: [], xM: [], error: [] };
+        let error = Number.MAX_VALUE;
 
         while (iteration < maxIterations && error > tolerance) {
             const previousX = [...xNew];
@@ -52,10 +54,16 @@ function Jacobi() {
             }
 
             error = Math.max(...xNew.map((value, index) => Math.abs(value - previousX[index])));
+
+            newOutputData.iteration.push(iteration + 1);
+            newOutputData.xM.push([...xNew]);
+            newOutputData.error.push(error);
+
             iteration++;
         }
 
-        setResult(xNew); // Update the state with the result
+        setResult(xNew);
+        setOutputData(newOutputData);
     };
 
     const increaseMetrixSize = () => {
@@ -89,6 +97,32 @@ function Jacobi() {
         const newArrayB = [...arrayB];
         newArrayB[i] = value;
         setArrayB(newArrayB);
+    };
+
+    const updatePlotData = () => {
+        // Prepare data for the plot based on the equations
+        if (result.length >= 2) {
+            const xValues = Array.from({ length: 100 }, (_, i) => i - 50); // X values from -50 to 49
+            const yValues1 = xValues.map(x => (result[0] * x + arrayB[0]) / arrayA[0][1]);
+            const yValues2 = xValues.map(x => (result[1] * x + arrayB[1]) / arrayA[1][1]);
+
+            setPlotData([
+                {
+                    x: xValues,
+                    y: yValues1,
+                    type: 'scatter',
+                    mode: 'lines',
+                    name: 'Equation 1',
+                },
+                {
+                    x: xValues,
+                    y: yValues2,
+                    type: 'scatter',
+                    mode: 'lines',
+                    name: 'Equation 2',
+                },
+            ]);
+        }
     };
 
     return (
@@ -197,9 +231,62 @@ function Jacobi() {
                                         ))
                                     )}
                                 </div>
+                                <h2 className="text-xl font-semibold">Output Table</h2>
+                                <div className="h-80 overflow-x-auto rounded mt-2">
+                                    <table className="table table-pin-rows rounded">
+                                        <thead>
+                                            <tr>
+                                                <th className="bg-primary text-primary-content">Iteration</th>
+                                                <th className="bg-primary text-primary-content">X Value</th>
+                                                <th className="bg-primary text-primary-content">Error</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {outputData.iteration.length > 0 ? (
+                                                outputData.iteration.slice(0, 100).map((iteration, index) => (
+                                                    <tr key={index}>
+                                                        <td>{iteration}</td>
+                                                        <td>{outputData.xM[index].join(', ')}</td>
+                                                        <td>{outputData.error[index]}</td>
+                                                    </tr>
+                                                ))
+                                            ) : (
+                                                <tr>
+                                                    <td colSpan={3} className="text-center">No data</td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
+                </div>
+                <div className='w-full flex justify-center bg-base-100'>
+                    <Plot
+                        data={plotData}
+                        layout={{
+                            width: '100%',
+                            height: 400,
+                            title: 'Graph of the equations',
+                            paper_bgcolor: '#ffefcc',
+                            plot_bgcolor: '#ffefcc',
+                            xaxis: {
+                                range: [-50, 50],
+                                title: 'X values',
+                            },
+                            yaxis: {
+                                range: [-100, 100],
+                                title: 'Y values',
+                            },
+                            margin: {
+                                l: 40,
+                                r: 40,
+                                t: 40,
+                                b: 40,
+                            },
+                        }}
+                    />
                 </div>
             </div>
         </div>

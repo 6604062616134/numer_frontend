@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import * as math from 'mathjs';
+import Plot from 'react-plotly.js';
 
 function CompositTrape() {
     const [isCollapsed, setIsCollapsed] = useState(false);
@@ -11,6 +12,10 @@ function CompositTrape() {
     const [n, setN] = useState(''); // Number of subintervals
 
     const [output, setOutput] = useState(null);
+    const [h, setH] = useState(null);
+    const [xValues, setXValues] = useState([]);
+    const [yValues, setYValues] = useState([]);
+
 
     const handleSolve = () => {
         const parsedA = parseFloat(a);
@@ -26,7 +31,8 @@ function CompositTrape() {
         try {
             const f = math.compile(fx);
             const h = (parsedB - parsedA) / parsedN;
-            let sum1 = f.evaluate({ x: parsedA }) + f.evaluate({ x: parsedB }); //f(x0) + f(xn)
+            setH(h);
+            let sum1 = f.evaluate({ x: parsedA }) + f.evaluate({ x: parsedB }); // f(x0) + f(xn)
 
             let sum = 0;
             for (let i = 1; i < parsedN; i++) {
@@ -36,6 +42,17 @@ function CompositTrape() {
 
             const result = (h / 2) * (sum + sum1);
             setOutput(result);
+
+            // Generate x and y values for the graph
+            const xValues = [];
+            const yValues = [];
+            for (let x = parsedA; x <= parsedB; x += 0.1) {
+                xValues.push(x);
+                yValues.push(f.evaluate({ x }));
+            }
+            setXValues(xValues);
+            setYValues(yValues);
+
         } catch (e) {
             alert("There was an error evaluating the function. Please check your input function.");
             setOutput(null);
@@ -111,7 +128,40 @@ function CompositTrape() {
                             <h2 className="text-xl font-semibold">Output</h2>
                             <div className="text-lg">
                                 <p>Answer : {output !== null ? output : 'No data'}</p>
+                                <p>h : {h !== null ? h : 'No data'}</p>
                             </div>
+                        </div>
+                        <div className='w-full flex justify-center bg-base-100'>
+                            <Plot
+                                data={[
+                                    {
+                                        x: xValues,
+                                        y: yValues,
+                                        type: 'scatter',
+                                        mode: 'lines',
+                                        marker: { color: 'black' },
+                                    },
+                                ]}
+                                layout={{
+                                    width: '100%',
+                                    height: 400,
+                                    title: fx ? `Graph of ${fx}` : 'Graph',
+                                    paper_bgcolor: '#ffefcc',
+                                    plot_bgcolor: '#ffefcc',
+                                    xaxis: {
+                                        range: [parseFloat(a), parseFloat(b)], 
+                                    },
+                                    yaxis: {
+                                        range: [-10, 10],
+                                    },
+                                    margin: {
+                                        l: 40,
+                                        r: 40,
+                                        t: 40,
+                                        b: 40,
+                                    },
+                                }}
+                            />
                         </div>
                     </div>
                 </div>

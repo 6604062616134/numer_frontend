@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import * as math from 'mathjs';
+import Plot from 'react-plotly.js';
 
 function MoreAcc() {
     const [isCollapsed, setIsCollapsed] = useState(false);
@@ -30,7 +31,7 @@ function MoreAcc() {
                     const result = (3 * f.evaluate({ x: x }) - 4 * f.evaluate({ x: x - h }) + f.evaluate({ x: x - 2 * h })) / (2 * h);
                     setOutput(result);
                 } else if (mode === 'central') {
-                    const result = (-f.evaluate({ x: x + 2*h }) + 8 * f.evaluate({ x: x + h }) - 8 * f.evaluate({ x: x - h }) + f.evaluate({x: x - 2*h})) / (12 * h);
+                    const result = (-f.evaluate({ x: x + 2 * h }) + 8 * f.evaluate({ x: x + h }) - 8 * f.evaluate({ x: x - h }) + f.evaluate({ x: x - 2 * h })) / (12 * h);
                     setOutput(result);
                 }
             } else if (order === '2') {
@@ -46,13 +47,13 @@ function MoreAcc() {
                 }
             } else if (order === '3') {
                 if (mode === 'forward') {
-                    const result = (-3 * f.evaluate({ x: x + 4 * h }) + 14 * f.evaluate({ x: x + 3*h }) - 24 * f.evaluate({ x: x+2*h }) + 18 * f.evaluate({ x: x + h }) - 5 * f.evaluate({ x: x })) / (2 * (h * h * h));
+                    const result = (-3 * f.evaluate({ x: x + 4 * h }) + 14 * f.evaluate({ x: x + 3 * h }) - 24 * f.evaluate({ x: x + 2 * h }) + 18 * f.evaluate({ x: x + h }) - 5 * f.evaluate({ x: x })) / (2 * (h * h * h));
                     setOutput(result);
                 } else if (mode === 'backward') {
                     const result = (5 * f.evaluate({ x: x }) - 18 * f.evaluate({ x: x - h }) + 24 * f.evaluate({ x: x - 2 * h }) - 14 * f.evaluate({ x: x - 3 * h }) - f.evaluate({ x: x - 3 * h })) / (2 * (h * h * h));
                     setOutput(result);
                 } else if (mode === 'central') {
-                    const result = (-f.evaluate({ x: x + 3 * h }) + 8 * f.evaluate({ x: x + 2*h }) - 13 * f.evaluate({ x: x + h }) + 13 * f.evaluate({ x: x - h }) - 8 * f.evaluate({x: x - 2*h}) + f.evaluate({x: x-3*h})) / (8 * h * h * h);
+                    const result = (-f.evaluate({ x: x + 3 * h }) + 8 * f.evaluate({ x: x + 2 * h }) - 13 * f.evaluate({ x: x + h }) + 13 * f.evaluate({ x: x - h }) - 8 * f.evaluate({ x: x - 2 * h }) + f.evaluate({ x: x - 3 * h })) / (8 * h * h * h);
                     setOutput(result);
                 }
             } else if (order === '4') {
@@ -60,10 +61,10 @@ function MoreAcc() {
                     const result = (-2 * f.evaluate({ x: x + 5 * h }) + 11 * f.evaluate({ x: x + 4 * h }) - 24 * f.evaluate({ x: x + 3 * h }) + 26 * f.evaluate({ x: x + 2 * h }) - 14 * f.evaluate({ x: x + h }) + 3 * f.evaluate({ x: x })) / (h * h * h * h);
                     setOutput(result);
                 } else if (mode === 'backward') {
-                    const result = (3 * f.evaluate({ x: x }) - 14 * f.evaluate({ x: x - h }) + 26 * f.evaluate({ x: x - 2 * h }) - 24 * f.evaluate({x: x - 3*h}) + 11 * f.evaluate({ x: x - 4 * h }) - 2 * f.evaluate({ x: x - 5 * h })) / (h * h * h * h);
+                    const result = (3 * f.evaluate({ x: x }) - 14 * f.evaluate({ x: x - h }) + 26 * f.evaluate({ x: x - 2 * h }) - 24 * f.evaluate({ x: x - 3 * h }) + 11 * f.evaluate({ x: x - 4 * h }) - 2 * f.evaluate({ x: x - 5 * h })) / (h * h * h * h);
                     setOutput(result);
                 } else if (mode === 'central') {
-                    const result = (-f.evaluate({ x: x + 3 * h }) + 12 * f.evaluate({ x: x + 2*h }) - 39 * f.evaluate({ x: x+h }) + 56 * f.evaluate({ x: x }) - 39 * f.evaluate({ x: x - h }) + 12 * f.evaluate({x: x-2*h}) - f.evaluate({x: x-3*h})) / (6 * h * h * h * h);
+                    const result = (-f.evaluate({ x: x + 3 * h }) + 12 * f.evaluate({ x: x + 2 * h }) - 39 * f.evaluate({ x: x + h }) + 56 * f.evaluate({ x: x }) - 39 * f.evaluate({ x: x - h }) + 12 * f.evaluate({ x: x - 2 * h }) - f.evaluate({ x: x - 3 * h })) / (6 * h * h * h * h);
                     setOutput(result);
                 }
             } else if (order > '4') {
@@ -75,6 +76,23 @@ function MoreAcc() {
             setOutput(null);
         }
     };
+
+    const xRange = 100;
+    const calculateY = (x, fx) => {
+        const sanitizedFx = fx.replace(/\^/g, '**');
+        try {
+            return eval(sanitizedFx.replace(/x/g, `(${x})`));
+        } catch (error) {
+            console.error("Error calculating y values:", error);
+            return 0;
+        }
+    };
+
+    const xValues = Array.from({ length: 201 }, (_, i) => i - xRange);
+    const yValues = xValues.map(x => calculateY(x, fx));
+
+    const yMin = Math.min(...yValues);
+    const yMax = Math.max(...yValues);
 
     return (
         <div className="flex min-h-screen">
@@ -157,6 +175,38 @@ function MoreAcc() {
                             </div>
                         </div>
                     </div>
+                </div>
+                <div className='w-full flex justify-center bg-base-100'>
+                    <Plot
+                        data={[
+                            {
+                                x: xValues,
+                                y: yValues,
+                                type: 'scatter',
+                                mode: 'lines',
+                                marker: { color: 'black' },
+                            },
+                        ]}
+                        layout={{
+                            width: '100%',
+                            height: 400,
+                            title: fx ? `Graph of ${fx}` : 'Graph',
+                            paper_bgcolor: '#ffefcc',
+                            plot_bgcolor: '#ffefcc',
+                            xaxis: {
+                                range: [-100, 100],
+                            },
+                            yaxis: {
+                                range: [yMin, yMax],
+                            },
+                            margin: {
+                                l: 40,
+                                r: 40,
+                                t: 40,
+                                b: 40,
+                            },
+                        }}
+                    />
                 </div>
             </div>
         </div>

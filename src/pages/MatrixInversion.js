@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
-import * as math from 'mathjs';
+import Plot from 'react-plotly.js';
 
 function MatrixInversion() {
     const [metrixSize, setMetrixSize] = useState(3);
@@ -9,9 +9,11 @@ function MatrixInversion() {
     const [arrayB, setArrayB] = useState(Array(metrixSize).fill(''));
     const [result, setResult] = useState([]);
 
+    const [plotData, setPlotData] = useState([]);
 
     useEffect(() => {
-
+        console.log("Result updated:", result);
+        updatePlotData(); // Update plot data when result changes
     }, [result]);
 
     const increaseMetrixSize = () => {
@@ -83,7 +85,33 @@ function MatrixInversion() {
         }
 
         return X;
-    }
+    };
+
+    const updatePlotData = () => {
+        // Prepare data for the plot based on the equations
+        if (result.length >= 2) {
+            const xValues = Array.from({ length: 100 }, (_, i) => i - 50); // X values from -50 to 49
+            const yValues1 = xValues.map(x => (result[0] * x + arrayB[0]) / arrayA[0][1]);
+            const yValues2 = xValues.map(x => (result[1] * x + arrayB[1]) / arrayA[1][1]);
+
+            setPlotData([
+                {
+                    x: xValues,
+                    y: yValues1,
+                    type: 'scatter',
+                    mode: 'lines',
+                    name: 'Equation 1',
+                },
+                {
+                    x: xValues,
+                    y: yValues2,
+                    type: 'scatter',
+                    mode: 'lines',
+                    name: 'Equation 2',
+                },
+            ]);
+        }
+    };
 
     return (
         <div className="flex min-h-screen">
@@ -202,6 +230,32 @@ function MatrixInversion() {
                         </div>
                     </div>
                     {/* graph section */}
+                    <div className='w-full flex justify-center bg-base-100'>
+                        <Plot
+                            data={plotData}
+                            layout={{
+                                width: '100%',
+                                height: 400,
+                                title: 'Graph of the equations',
+                                paper_bgcolor: '#ffefcc',
+                                plot_bgcolor: '#ffefcc',
+                                xaxis: {
+                                    range: [-50, 50],
+                                    title: 'X values',
+                                },
+                                yaxis: {
+                                    range: [-100, 100],
+                                    title: 'Y values',
+                                },
+                                margin: {
+                                    l: 40,
+                                    r: 40,
+                                    t: 40,
+                                    b: 40,
+                                },
+                            }}
+                        />
+                    </div>
                 </div>
             </div>
         </div>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
+import Plot from 'react-plotly.js';
 import * as math from 'mathjs';
 
 function Multiple() {
@@ -9,6 +10,7 @@ function Multiple() {
     const [x3, setX3] = useState('');
     const [y, setY] = useState(''); // Y values
     const [output, setOutput] = useState(null); // Output for predicted Y
+    const [coefficients, setCoefficients] = useState([]); // Store coefficients for display
 
     const handleSolve = async () => {
         const nVal = parseInt(n);
@@ -92,6 +94,8 @@ function Multiple() {
 
             setOutput(`f(x) = (${pp.toFixed(4)}) + (${pp1.toFixed(4)})X1 + (${pp2.toFixed(4)})X2 + (${pp3.toFixed(4)})X3`);
             
+            setCoefficients([pp, pp1, pp2, pp3]);
+
         }catch(e){
             alert('There was an error evaluating the function. Please check your input function.');
         }
@@ -140,7 +144,7 @@ function Multiple() {
                                 <label className="block">X1</label>
                                 <input
                                     type="text"
-                                    placeholder='separated by semicolon'
+                                    placeholder='separated by comma'
                                     className="input input-bordered w-full input-primary mt-2"
                                     value={x1}
                                     onChange={(e) => setX1(e.target.value)}
@@ -150,7 +154,7 @@ function Multiple() {
                                 <label className="block">X2</label>
                                 <input
                                     type="text"
-                                    placeholder='separated by semicolon'
+                                    placeholder='separated by comma'
                                     className="input input-bordered w-full input-primary mt-2"
                                     value={x2}
                                     onChange={(e) => setX2(e.target.value)}
@@ -160,7 +164,7 @@ function Multiple() {
                                 <label className="block">X3</label>
                                 <input
                                     type="text"
-                                    placeholder='separated by semicolon'
+                                    placeholder='separated by comma'
                                     className="input input-bordered w-full input-primary mt-2"
                                     value={x3}
                                     onChange={(e) => setX3(e.target.value)}
@@ -178,7 +182,33 @@ function Multiple() {
                             <h2 className="text-xl font-semibold">Output</h2>
                             <div className="text-lg">
                                 <p>Answer : {output !== null ? output : 'No data'}</p>
+                                <p>Coefficients: {coefficients.length > 0 ? coefficients.map((coef, i) => `a${i} = ${coef.toFixed(4)}`).join(', ') : 'No coefficients'}</p>
                             </div>
+                        </div>
+
+                        <div className='w-full flex justify-center bg-base-100'>
+                            <Plot
+                                data={[
+                                    {
+                                        x: x1.split(',').map((val) => parseFloat(val)),
+                                        y: x2.split(',').map((val) => parseFloat(val)),
+                                        z: y.split(',').map((val) => parseFloat(val)),
+                                        type: 'scatter3d',
+                                        mode: 'markers',
+                                        marker: { color: 'blue' },
+                                    },
+                                ]}
+                                layout={{
+                                    width: 700,
+                                    height: 500,
+                                    title: 'Multiple Linear Regression (3D)',
+                                    scene: {
+                                        xaxis: { title: 'X1' },
+                                        yaxis: { title: 'X2' },
+                                        zaxis: { title: 'Y' },
+                                    },
+                                }}
+                            />
                         </div>
                     </div>
                 </div>

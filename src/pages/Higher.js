@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import * as math from 'mathjs';
+import Plot from 'react-plotly.js';
 
 function Higher() {
     const [isCollapsed, setIsCollapsed] = useState(false);
@@ -24,10 +25,10 @@ function Higher() {
 
             if (order === '2') {
                 if (mode === 'forward') {
-                    const result = (f.evaluate({ x: x + 2*h }) - 2 * f.evaluate({ x: x + h }) + f.evaluate({ x: x })) / (h * h);
+                    const result = (f.evaluate({ x: x + 2 * h }) - 2 * f.evaluate({ x: x + h }) + f.evaluate({ x: x })) / (h * h);
                     setOutput(result);
                 } else if (mode === 'backward') {
-                    const result = (f.evaluate({ x: x }) - 2 * f.evaluate({ x: x-h }) + f.evaluate({ x: x - 2*h })) / (h * h);
+                    const result = (f.evaluate({ x: x }) - 2 * f.evaluate({ x: x - h }) + f.evaluate({ x: x - 2 * h })) / (h * h);
                     setOutput(result);
                 } else if (mode === 'central') {
                     const result = (f.evaluate({ x: x + h }) - 2 * f.evaluate({ x: x }) + f.evaluate({ x: x - h })) / (h * h);
@@ -35,31 +36,31 @@ function Higher() {
                 }
 
                 console.log('x+h', f.evaluate({ x: x + h }));
-                console.log('2fx', 2*f.evaluate({ x: x }));
+                console.log('2fx', 2 * f.evaluate({ x: x }));
                 console.log('x-h', f.evaluate({ x: x - h }));
-            }else if(order === '3'){
+            } else if (order === '3') {
                 if (mode === 'forward') {
-                    const result = (f.evaluate({ x: x + 3*h }) - 3 * f.evaluate({ x: x + 2*h }) + 3 * f.evaluate({ x: x + h }) - f.evaluate({ x: x })) / (h * h * h);
+                    const result = (f.evaluate({ x: x + 3 * h }) - 3 * f.evaluate({ x: x + 2 * h }) + 3 * f.evaluate({ x: x + h }) - f.evaluate({ x: x })) / (h * h * h);
                     setOutput(result);
                 } else if (mode === 'backward') {
-                    const result = (f.evaluate({ x: x }) - 3 * f.evaluate({ x: x-h }) + 3 * f.evaluate({ x: x-2*h }) - f.evaluate({ x: x - 3*h })) / (h * h * h);
+                    const result = (f.evaluate({ x: x }) - 3 * f.evaluate({ x: x - h }) + 3 * f.evaluate({ x: x - 2 * h }) - f.evaluate({ x: x - 3 * h })) / (h * h * h);
                     setOutput(result);
                 } else if (mode === 'central') {
-                    const result = (f.evaluate({ x: x + 2*h }) - 2 * f.evaluate({ x: x + h }) + 2 * f.evaluate({ x: x - h }) - f.evaluate({x: x - 2*h})) / (2 * (h * h * h));
+                    const result = (f.evaluate({ x: x + 2 * h }) - 2 * f.evaluate({ x: x + h }) + 2 * f.evaluate({ x: x - h }) - f.evaluate({ x: x - 2 * h })) / (2 * (h * h * h));
                     setOutput(result);
                 }
-            }else if(order === '4'){
+            } else if (order === '4') {
                 if (mode === 'forward') {
-                    const result = (f.evaluate({ x: x + 4*h }) - 4 * f.evaluate({ x: x + 3*h }) + 6 * f.evaluate({ x: x + 2*h }) - 4 * f.evaluate({ x: x + h }) + f.evaluate({ x: x })) / (h * h * h * h);
+                    const result = (f.evaluate({ x: x + 4 * h }) - 4 * f.evaluate({ x: x + 3 * h }) + 6 * f.evaluate({ x: x + 2 * h }) - 4 * f.evaluate({ x: x + h }) + f.evaluate({ x: x })) / (h * h * h * h);
                     setOutput(result);
                 } else if (mode === 'backward') {
-                    const result = (f.evaluate({ x: x }) - 4 * f.evaluate({ x: x-h }) + 6 * f.evaluate({ x: x-2*h }) - 4 * f.evaluate({ x: x-3*h }) + f.evaluate({ x: x - 4*h })) / (h * h * h * h);
+                    const result = (f.evaluate({ x: x }) - 4 * f.evaluate({ x: x - h }) + 6 * f.evaluate({ x: x - 2 * h }) - 4 * f.evaluate({ x: x - 3 * h }) + f.evaluate({ x: x - 4 * h })) / (h * h * h * h);
                     setOutput(result);
                 } else if (mode === 'central') {
-                    const result = (f.evaluate({ x: x + 2*h }) - 4 * f.evaluate({ x: x + h }) + 6 * f.evaluate({ x: x }) - 4 * f.evaluate({ x: x - h }) + f.evaluate({x: x - 2*h})) / (h * h * h * h);
+                    const result = (f.evaluate({ x: x + 2 * h }) - 4 * f.evaluate({ x: x + h }) + 6 * f.evaluate({ x: x }) - 4 * f.evaluate({ x: x - h }) + f.evaluate({ x: x - 2 * h })) / (h * h * h * h);
                     setOutput(result);
                 }
-            }else if(order > '4'){
+            } else if (order > '4') {
                 alert('Order must be 2,3,4');
             }
 
@@ -69,13 +70,30 @@ function Higher() {
         }
     };
 
+    const xRange = 100;
+    const calculateY = (x, fx) => {
+        const sanitizedFx = fx.replace(/\^/g, '**');
+        try {
+            return eval(sanitizedFx.replace(/x/g, `(${x})`));
+        } catch (error) {
+            console.error("Error calculating y values:", error);
+            return 0;
+        }
+    };
+
+    const xValues = Array.from({ length: 201 }, (_, i) => i - xRange);
+    const yValues = xValues.map(x => calculateY(x, fx));
+
+    const yMin = Math.min(...yValues);
+    const yMax = Math.max(...yValues);
+
     return (
         <div className="flex min-h-screen">
             <Sidebar onToggle={(collapsed) => setIsCollapsed(collapsed)} />
             <div className={`flex-1 p-6 transition-all duration-300 ${isCollapsed ? 'ml-20' : 'ml-64'}`}>
                 <h1 className="text-3xl font-bold">Higher derivatives</h1>
                 <p className="text-justify mt-2">
-                    In calculus, the derivative of a function of a real variable measures the sensitivity to change of the function value (output value) with respect to a change in its argument (input value). Derivatives are a fundamental tool of calculus. For example, the derivative of the position of a moving object with respect to time is the object's velocity: this measures how quickly the position of the object changes when time is varied. The derivative of a function of a single variable at a chosen input value, when it exists, is the slope of the tangent line to the graph of the function at that point. The tangent line is the best linear approximation of the function near that input value. For this reason, the derivative is often described as the "instantaneous rate of change", the ratio of the instantaneous change in the dependent variable to that of the independent variable
+                    Higher derivatives are the derivatives of the derivatives. The first derivative of a function is the rate at which the function is changing. The second derivative is the rate at which the first derivative is changing. Higher derivatives are the same idea, just taken to the next level.
                 </p>
 
                 <div className="flex flex-col lg:flex-row mt-6 gap-6">
@@ -150,6 +168,38 @@ function Higher() {
                             </div>
                         </div>
                     </div>
+                </div>
+                <div className='w-full flex justify-center bg-base-100'>
+                    <Plot
+                        data={[
+                            {
+                                x: xValues,
+                                y: yValues,
+                                type: 'scatter',
+                                mode: 'lines',
+                                marker: { color: 'black' },
+                            },
+                        ]}
+                        layout={{
+                            width: '100%',
+                            height: 400,
+                            title: fx ? `Graph of ${fx}` : 'Graph',
+                            paper_bgcolor: '#ffefcc',
+                            plot_bgcolor: '#ffefcc',
+                            xaxis: {
+                                range: [-100, 100],
+                            },
+                            yaxis: {
+                                range: [yMin, yMax],
+                            },
+                            margin: {
+                                l: 40,
+                                r: 40,
+                                t: 40,
+                                b: 40,
+                            },
+                        }}
+                    />
                 </div>
             </div>
         </div>

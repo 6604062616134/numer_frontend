@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
-import * as math from 'mathjs';
+import Plot from 'react-plotly.js';
 
 function Gaussjordan() {
     const [isCollapsed, setIsCollapsed] = useState(false);
@@ -8,34 +8,36 @@ function Gaussjordan() {
     const [arrayA, setArrayA] = useState(Array(metrixSize).fill().map(() => Array(metrixSize).fill('')));
     const [arrayB, setArrayB] = useState(Array(metrixSize).fill(''));
     const [result, setResult] = useState([]);
+    const [plotData, setPlotData] = useState([]);
 
     useEffect(() => {
         console.log("Result updated:", result);
+        updatePlotData(); // Update plot data when result changes
     }, [result]);
 
     const calculateGaussJordan = () => {
         const rows = arrayA.length;
         const cols = arrayA[0].length;
-    
+
         // Convert string inputs to numbers for calculations
         const matrixA = arrayA.map(row => row.map(value => parseFloat(value)));
         const matrixB = arrayB.map(value => parseFloat(value));
-    
+
         // Validate if any input is not a valid number
         if (matrixA.some(row => row.includes(NaN)) || matrixB.includes(NaN)) {
             alert("Please enter valid numbers in the matrices.");
             return;
         }
-    
+
         // Check for valid matrix dimensions
         if (rows !== cols || matrixA.length !== matrixB.length) {
             alert("Array size does not match matrix dimensions.");
             return;
         }
-    
+
         // Augment matrix A with vector B (matrixA | matrixB)
         let augmentedMatrix = matrixA.map((row, i) => [...row, matrixB[i]]);
-    
+
         // Perform Gauss-Jordan elimination
         for (let i = 0; i < rows; i++) {
             // Make the diagonal element 1 by dividing the row by the diagonal element
@@ -47,7 +49,7 @@ function Gaussjordan() {
             for (let j = 0; j < cols + 1; j++) {
                 augmentedMatrix[i][j] /= diagonalElement;
             }
-    
+
             // Make all elements in the current column, except the pivot, zero
             for (let k = 0; k < rows; k++) {
                 if (k !== i) {
@@ -58,14 +60,14 @@ function Gaussjordan() {
                 }
             }
         }
-    
+
         // Extract the solution vector from the last column of the augmented matrix
         const solution = augmentedMatrix.map(row => row[cols]);
-    
+
         // Update the result state
         setResult(solution);
     };
-    
+
 
     const increaseMetrixSize = () => {
         if (metrixSize < 5) {
@@ -97,6 +99,32 @@ function Gaussjordan() {
         const newArrayB = [...arrayB];
         newArrayB[i] = value;
         setArrayB(newArrayB);
+    };
+
+    const updatePlotData = () => {
+        // Prepare data for the plot based on the equations
+        if (result.length >= 2) {
+            const xValues = Array.from({ length: 100 }, (_, i) => i - 50); // X values from -50 to 49
+            const yValues1 = xValues.map(x => (result[0] * x + arrayB[0]) / arrayA[0][1]);
+            const yValues2 = xValues.map(x => (result[1] * x + arrayB[1]) / arrayA[1][1]);
+
+            setPlotData([
+                {
+                    x: xValues,
+                    y: yValues1,
+                    type: 'scatter',
+                    mode: 'lines',
+                    name: 'Equation 1',
+                },
+                {
+                    x: xValues,
+                    y: yValues2,
+                    type: 'scatter',
+                    mode: 'lines',
+                    name: 'Equation 2',
+                },
+            ]);
+        }
     };
 
     return (
@@ -179,6 +207,32 @@ function Gaussjordan() {
                             </div>
                         </div>
                     </div>
+                </div>
+                <div className='w-full flex justify-center bg-base-100'>
+                    <Plot
+                        data={plotData}
+                        layout={{
+                            width: '100%',
+                            height: 400,
+                            title: 'Graph of the equations',
+                            paper_bgcolor: '#ffefcc',
+                            plot_bgcolor: '#ffefcc',
+                            xaxis: {
+                                range: [-50, 50],
+                                title: 'X values',
+                            },
+                            yaxis: {
+                                range: [-100, 100],
+                                title: 'Y values',
+                            },
+                            margin: {
+                                l: 40,
+                                r: 40,
+                                t: 40,
+                                b: 40,
+                            },
+                        }}
+                    />
                 </div>
             </div>
         </div>

@@ -3,17 +3,17 @@ import Sidebar from '../components/Sidebar';
 import Plot from 'react-plotly.js';
 
 function Spline() {
-    const [n, setN] = useState(''); //จำนวน x
-    const [x, setX] = useState(''); //ค่า x ตามจำนวน n
-    const [y, setY] = useState(''); //ค่า y ตามจำนวน n
-    const [mode, setMode] = useState(''); //linear, quadratic, cubic
-    const [xValue, setXValue] = useState(''); //ค่า x ที่ต้องการหาค่า y
+    const [n, setN] = useState(''); // จำนวน x
+    const [x, setX] = useState(''); // ค่า x ตามจำนวน n
+    const [y, setY] = useState(''); // ค่า y ตามจำนวน n
+    const [mode, setMode] = useState(''); // linear, quadratic, cubic
+    const [xValue, setXValue] = useState(''); // ค่า x ที่ต้องการหาค่า y
 
-    const [m, setM] = useState(''); //slope
+    const [m, setM] = useState(''); // slope
+    const [output, setOutput] = useState(null); // ค่า y ที่หาได้ จาก xValue
+    const [graphData, setGraphData] = useState({ x: [], y: [] });
 
-    const [output, setOutput] = useState(null); //ค่า y ที่หาได้ จาก xValue
-
-    const handleSolve = async () => {
+    const handleSolve = () => {
         if (mode === '' || n === '' || x === '' || y === '' || xValue === '') {
             alert("Please fill all input fields.");
             return;
@@ -27,13 +27,12 @@ function Spline() {
             return;
         }
 
-        // Calculate slope for each interval and store in mArray
         const mArray = [];
         for (let i = 1; i < xArray.length; i++) {
             const m = (yArray[i] - yArray[i - 1]) / (xArray[i] - xArray[i - 1]);
             mArray.push(m);
         }
-        setM(mArray);  // Store slopes in state if needed for debugging
+        setM(mArray);
 
         const findIntervalIndex = (xArray, xValue) => {
             for (let i = 0; i < xArray.length - 1; i++) {
@@ -41,7 +40,7 @@ function Spline() {
                     return i;
                 }
             }
-            return -1; // Not found
+            return -1;
         };
 
         let intervalIndex = findIntervalIndex(xArray, xValue);
@@ -51,62 +50,54 @@ function Spline() {
         }
 
         let result = 0;
-
         if (mode === 'linear') {
             result = linearInterpolation(xArray, yArray, mArray, intervalIndex, xValue);
         } else if (mode === 'quadratic') {
-            result = quadraticInterpolation(xArray, yArray, xValue);
+            result = quadraticInterpolation(xArray, yArray, intervalIndex, xValue);
         } else if (mode === 'cubic') {
-            result = cubicInterpolation(xArray, yArray, xValue);
+            result = cubicInterpolation(xArray, yArray, intervalIndex, xValue);
         }
 
         setOutput(result);
+
+        const graphX = Array.from({ length: 100 }, (_, i) => i - 50);
+        const graphY = graphX.map(val => {
+            if (mode === 'linear') {
+                return linearInterpolation(xArray, yArray, mArray, intervalIndex, val);
+            } else if (mode === 'quadratic') {
+                return quadraticInterpolation(xArray, yArray, intervalIndex, val);
+            } else if (mode === 'cubic') {
+                return cubicInterpolation(xArray, yArray, intervalIndex, val);
+            }
+        });
+
+        setGraphData({ x: graphX, y: graphY });
     };
 
     const linearInterpolation = (xArray, yArray, mArray, intervalIndex, xValue) => {
-        const m = mArray[intervalIndex];  // Use the slope for the interval
+        const m = mArray[intervalIndex];
         const x0 = xArray[intervalIndex];
         const y0 = yArray[intervalIndex];
-
-        // Calculate y using slope (m) and the linear equation
-        const result = y0 + m * (xValue - x0);
-        return result;
+        return y0 + m * (xValue - x0);
     };
 
     const quadraticInterpolation = (x, y, intervalIndex, xValue) => {
-        const mArray = [];
-        for (let i = 1; i <= 2; i++) {
-            const m = (y[i] - y[i - 1]) / (x[i] - x[i - 1]);
-            mArray.push(m);
-        }
-
-        let result = 0;
-        result += y[0] * ((xValue - x[1]) * (xValue - x[2])) / ((x[0] - x[1]) * (x[0] - x[2]));
-        result += y[1] * ((xValue - x[0]) * (xValue - x[2])) / ((x[1] - x[0]) * (x[1] - x[2]));
-        result += y[2] * ((xValue - x[0]) * (xValue - x[1])) / ((x[2] - x[0]) * (x[2] - x[1]));
-
-        setM(mArray);  // แสดงค่า m สำหรับ quadratic interpolation
-        return result;
+        return (
+            y[0] * ((xValue - x[1]) * (xValue - x[2])) / ((x[0] - x[1]) * (x[0] - x[2])) +
+            y[1] * ((xValue - x[0]) * (xValue - x[2])) / ((x[1] - x[0]) * (x[1] - x[2])) +
+            y[2] * ((xValue - x[0]) * (xValue - x[1])) / ((x[2] - x[0]) * (x[2] - x[1]))
+        );
     };
 
     const cubicInterpolation = (x, y, intervalIndex, xValue) => {
-        const mArray = [];
-        for (let i = 1; i <= 3; i++) {
-            const m = (y[i] - y[i - 1]) / (x[i] - x[i - 1]);
-            mArray.push(m);
-        }
-
-        let result = 0;
-        result += y[0] * ((xValue - x[1]) * (xValue - x[2]) * (xValue - x[3])) / ((x[0] - x[1]) * (x[0] - x[2]) * (x[0] - x[3]));
-        result += y[1] * ((xValue - x[0]) * (xValue - x[2]) * (xValue - x[3])) / ((x[1] - x[0]) * (x[1] - x[2]) * (x[1] - x[3]));
-        result += y[2] * ((xValue - x[0]) * (xValue - x[1]) * (xValue - x[3])) / ((x[2] - x[0]) * (x[2] - x[1]) * (x[2] - x[3]));
-        result += y[3] * ((xValue - x[0]) * (xValue - x[1]) * (xValue - x[2])) / ((x[3] - x[0]) * (x[3] - x[1]) * (x[3] - x[2]));
-
-        setM(mArray);  // แสดงค่า m สำหรับ cubic interpolation
-        return result;
+        return (
+            y[0] * ((xValue - x[1]) * (xValue - x[2]) * (xValue - x[3])) / ((x[0] - x[1]) * (x[0] - x[2]) * (x[0] - x[3])) +
+            y[1] * ((xValue - x[0]) * (xValue - x[2]) * (xValue - x[3])) / ((x[1] - x[0]) * (x[1] - x[2]) * (x[1] - x[3])) +
+            y[2] * ((xValue - x[0]) * (xValue - x[1]) * (xValue - x[3])) / ((x[2] - x[0]) * (x[2] - x[1]) * (x[2] - x[3])) +
+            y[3] * ((xValue - x[0]) * (xValue - x[1]) * (xValue - x[2])) / ((x[3] - x[0]) * (x[3] - x[1]) * (x[3] - x[2]))
+        );
     };
 
-    console.log(output);
     const [isCollapsed, setIsCollapsed] = useState(false);
 
     return (
@@ -133,7 +124,7 @@ function Spline() {
                                     onChange={(e) => setN(e.target.value)}
                                 />
                             </div>
-                            {/* x value, y value(state x,y) รับเป็นarray อินพุทในช่องเดียว ใส่ลูกน้ำคั่น*/}
+
                             <div className="mt-2 w-full">
                                 <label className="block">X value</label>
                                 <input
@@ -144,6 +135,7 @@ function Spline() {
                                     onChange={(e) => setX(e.target.value)}
                                 />
                             </div>
+
                             <div className="mt-2 w-full">
                                 <label className="block">Y value</label>
                                 <input
@@ -156,7 +148,6 @@ function Spline() {
                             </div>
                         </div>
 
-                        {/* เลือกประเภท */}
                         <div className="flex gap-4 w-full">
                             <div className="mt-2 w-full">
                                 <label className="block">Select type</label>
@@ -168,7 +159,7 @@ function Spline() {
                                     onChange={(e) => setMode(e.target.value)}
                                 />
                             </div>
-                            {/* ใส่ค่า x ที่ต้องการหาค่า y ไม่เป็นแอร์เรย์*/}
+
                             <div className="mt-2 w-full">
                                 <label className="block">X</label>
                                 <input
@@ -196,7 +187,37 @@ function Spline() {
                         </div>
                     </div>
                 </div>
-                {/* graph plotกราฟจากฟังก์ชั่น f(x) = ตามสูตรของแต่ละประเภท (แต่ละประเภทฟังก์ชั่นต่างกัน)*/}
+
+                <div className='w-full flex justify-center bg-base-100'>
+                    <Plot
+                        data={[{
+                            x: graphData.x,
+                            y: graphData.y,
+                            type: 'scatter',
+                            mode: 'lines',
+                            marker: { color: 'black' },
+                        }]}
+                        layout={{
+                            width: '100%',
+                            height: 400,
+                            title: 'Graph of Spline Interpolation',
+                            paper_bgcolor: '#ffefcc',
+                            plot_bgcolor: '#ffefcc',
+                            xaxis: {
+                                range: [-50, 50],
+                            },
+                            yaxis: {
+                                range: [-100, 100],
+                            },
+                            margin: {
+                                l: 40,
+                                r: 40,
+                                t: 40,
+                                b: 40,
+                            },
+                        }}
+                    />
+                </div>
             </div>
         </div>
     );

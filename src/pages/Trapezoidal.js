@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import * as math from 'mathjs';
+import Plot from 'react-plotly.js';
 
 function Trapezoidal() {
     const [isCollapsed, setIsCollapsed] = useState(false);
@@ -10,6 +11,9 @@ function Trapezoidal() {
     const [fx, setFx] = useState(''); // Function input
 
     const [output, setOutput] = useState(null);
+    const [h, setH] = useState(null);
+    const [xValues, setXValues] = useState([]);
+    const [yValues, setYValues] = useState([]);
 
     const handleSolve = () => {
         const parsedX0 = parseFloat(x0);
@@ -27,10 +31,22 @@ function Trapezoidal() {
             console.log("formattedFx -> ", formattedFx);
             const f = math.compile(formattedFx);
             const h = parsedX1 - parsedX0;
+            setH(h);
             const sum = f.evaluate({ x: parsedX0 }) + f.evaluate({ x: parsedX1 }); //f(x) = f(x0) + f(x1)
 
-            const result = (h/2) * sum;
+            const result = (h / 2) * sum;
             setOutput(result);
+
+            // Generate x and y values for the graph
+            const xValues = [];
+            const yValues = [];
+            for (let x = parsedX0; x <= parsedX1; x += 0.1) {
+                xValues.push(x);
+                yValues.push(f.evaluate({ x }));
+            }
+            setXValues(xValues);
+            setYValues(yValues);
+
         } catch (e) {
             alert("There was an error evaluating the function. Please check your input function.");
             setOutput(null);
@@ -96,7 +112,40 @@ function Trapezoidal() {
                             <h2 className="text-xl font-semibold">Output</h2>
                             <div className="text-lg">
                                 <p>Answer : {output !== null ? output : 'No data'}</p>
+                                <p>h : {h !== null ? h : 'No data'}</p>
                             </div>
+                        </div>
+                        <div className='w-full flex justify-center bg-base-100'>
+                            <Plot
+                                data={[
+                                    {
+                                        x: xValues,
+                                        y: yValues,
+                                        type: 'scatter',
+                                        mode: 'lines',
+                                        marker: { color: 'black' },
+                                    },
+                                ]}
+                                layout={{
+                                    width: '100%',
+                                    height: 400,
+                                    title: fx ? `Graph of ${fx}` : 'Graph',
+                                    paper_bgcolor: '#ffefcc',
+                                    plot_bgcolor: '#ffefcc',
+                                    xaxis: {
+                                        range: [parseFloat(x0), parseFloat(x1)], // ใช้ x0 และ x1 แทน
+                                    },
+                                    yaxis: {
+                                        range: [-10, 10],
+                                    },
+                                    margin: {
+                                        l: 40,
+                                        r: 40,
+                                        t: 40,
+                                        b: 40,
+                                    },
+                                }}
+                            />
                         </div>
                     </div>
                 </div>
