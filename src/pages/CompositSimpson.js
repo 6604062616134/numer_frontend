@@ -15,58 +15,56 @@ function CompositSimpson() {
     const handleSolve = () => {
         const parsedA = parseFloat(a);
         const parsedB = parseFloat(b);
-        const parsedN = parseInt(n);
-
+        let parsedN = parseInt(n);
+    
         if (isNaN(parsedA) || isNaN(parsedB) || isNaN(parsedN) || parsedN <= 0) {
             alert("Invalid input for lower limit (a), upper limit (b), or number of subintervals (n). Please enter valid numbers.");
             setOutput(null);
             return;
         }
-
+    
         try {
             const f = math.compile(fx);
-
+    
             // Check if n is even
             if (parsedN % 2 !== 0) {
                 alert("N must be an even number for Simpson's Rule.");
                 setOutput(null);
                 return;
             }
-
-            const h = (parsedB - parsedA) / (2*parsedN);
-            console.log('h',h);
-            let sum1 = f.evaluate({ x: parsedA }) + f.evaluate({ x: parsedB }); //f(x0) + f(xn)
-
-            let xi = [];
-            let parsedXi = [];
+    
+            // Corrected h calculation
+            const h = (parsedB - parsedA) / parsedN;
+            console.log('h', h);
+    
+            // Simpson's Rule calculation
+            let sum = f.evaluate({ x: parsedA }) + f.evaluate({ x: parsedB });
+            console.log('Initial sum', sum);
+    
+            // Calculate the intermediate values
             for (let i = 1; i < parsedN; i++) {
-                parsedXi[i] = parseFloat(xi.push(parsedA + (i * h)));
+                let xi = parsedA + i * h;
+                let fxVal = f.evaluate({ x: xi });
+    
+                if (i % 2 === 0) {
+                    sum += 2 * fxVal;
+                    console.log(`Even index ${i}: 2 * f(${xi}) =`, 2 * fxVal);
+                } else {
+                    sum += 4 * fxVal;
+                    console.log(`Odd index ${i}: 4 * f(${xi}) =`, 4 * fxVal);
+                }
             }
-
-            console.log('parsedXi',parsedXi.length);
-
-            let fxi = [];
-            for (let i = 0; i < parsedXi.length; i++) {
-                fxi.push(f.evaluate({ x: parsedXi[i] }));
-                console.log(fxi[i]);
-            }
-
-            let sum2 = 0;
-            for (let i = 1; i < parsedN-1; i += 2) {
-                sum2 += fxi[i];
-            }
-
-            let sum3 = 0;
-            for (let i = 2; i < parsedN-2; i += 2) {
-                sum3 += fxi[i];
-            }
-
-            const result = (h / 3) * (sum1 + (4 * sum2) + (2 * sum3));
+    
+            // Final result calculation
+            const result = (h / 3) * sum;
             setOutput(result);
+            console.log('Final result:', result);
         } catch (e) {
+            console.log(e);
             alert("There was an error evaluating the function. Please check your input function.");
         }
     };
+    
 
     return (
         <div className="flex min-h-screen">

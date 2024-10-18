@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
+import Plot from 'react-plotly.js';
 
 function FalsePosition() {
   const [xL, setXL] = useState('');
@@ -84,6 +85,21 @@ function FalsePosition() {
       i_found: i - 1
     });
   };
+
+  // Function to calculate y-values for plotting the graph
+  const calculateY = (x, fx) => {
+    const sanitizedFx = fx.replace(/\^/g, '**');
+    try {
+      return eval(sanitizedFx.replace(/x/g, `(${x})`));
+    } catch (error) {
+      console.error("Error calculating y values:", error);
+      return 0;
+    }
+  };
+
+  const xRange = 100;
+  const xValues = Array.from({ length: 201 }, (_, i) => i - xRange);
+  const yValues = xValues.map(x => calculateY(x, fx));
 
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -193,6 +209,38 @@ function FalsePosition() {
           </div>
 
           {/* Graph section */}
+          <div className='w-full flex justify-center bg-base-100 mt-8'>
+            <Plot
+              data={[
+                {
+                  x: xValues,
+                  y: yValues,
+                  type: 'scatter',
+                  mode: 'lines',
+                  marker: { color: 'black' },
+                },
+              ]}
+              layout={{
+                width: '100%',
+                height: 400,
+                title: fx ? `Graph of ${fx}` : 'Graph',
+                paper_bgcolor: '#ffefcc',
+                plot_bgcolor: '#ffefcc',
+                xaxis: {
+                  range: [-100, 100],
+                },
+                yaxis: {
+                  range: [-100, 100],
+                },
+                margin: {
+                  l: 40,
+                  r: 40,
+                  t: 40,
+                  b: 40,
+                },
+              }}
+            />
+          </div>
         </div>
       </div>
     </div>

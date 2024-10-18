@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
+import Plot from 'react-plotly.js';
 
 function Bisection() {
   const [xL, setXL] = useState('');
@@ -40,7 +41,6 @@ function Bisection() {
     let fxL = evaluateFx(xLNum);
     let fxR = evaluateFx(xRNum);
 
-    // Check if the function has opposite signs at the boundaries
     if (fxL * fxR > 0) {
       setOutputData({
         iteration,
@@ -49,14 +49,13 @@ function Bisection() {
         answer_xM: "No root found: The function does not cross the x-axis in the specified interval.",
         i_found: null
       });
-      return; // Exit early if there's no root
+      return;
     }
 
     do {
       xM = (xLNum + xRNum) / 2;
       let fxm = evaluateFx(xM);
 
-      // Interval adjustment
       if (fxm * fxR < 0) {
         xLNum = xM;
       } else if (fxm * fxL < 0) {
@@ -73,7 +72,6 @@ function Bisection() {
       i++;
     } while (error > epsilonNum && i < 1000);
 
-    // Update output data
     setOutputData({
       iteration,
       xM: xMArray,
@@ -82,6 +80,21 @@ function Bisection() {
       i_found: i - 1
     });
   };
+
+  const xRange = 100;
+  const calculateY = (x, fx) => {
+    const sanitizedFx = fx.replace(/\^/g, '**');
+    try {
+      return eval(sanitizedFx.replace(/x/g, `(${x})`));
+    } catch (error) {
+      console.error("Error calculating y values:", error);
+      return 0;
+    }
+  };
+
+  const xValues = Array.from({ length: 201 }, (_, i) => i - xRange);
+  const yValues = xValues.map(x => calculateY(x, fx));
+
   const [isCollapsed, setIsCollapsed] = useState(false);
   return (
     <div className="flex min-h-screen">
@@ -185,6 +198,38 @@ function Bisection() {
               </div>
             </div>
           </div>
+        </div>
+        <div className='w-full flex justify-center bg-base-100'>
+          <Plot
+            data={[
+              {
+                x: xValues,
+                y: yValues,
+                type: 'scatter',
+                mode: 'lines',
+                marker: { color: 'black' },
+              },
+            ]}
+            layout={{
+              width: '100%',
+              height: 400,
+              title: fx ? `Graph of ${fx}` : 'Graph',
+              paper_bgcolor: '#ffefcc',
+              plot_bgcolor: '#ffefcc',
+              xaxis: {
+                range: [-100, 100],
+              },
+              yaxis: {
+                range: [-100, 100],
+              },
+              margin: {
+                l: 40,
+                r: 40,
+                t: 40,
+                b: 40,
+              },
+            }}
+          />
         </div>
       </div>
     </div>

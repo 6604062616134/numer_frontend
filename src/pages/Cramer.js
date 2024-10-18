@@ -16,7 +16,7 @@ function Cramer() {
 
     // Function to calculate using Cramer's Rule
     const calculateCramersRule = () => {
-        const rows = arrayA.length;
+        // const rows = arrayA.length;
         const cols = arrayA[0].length;
 
         // Validate array sizes
@@ -197,7 +197,6 @@ function Cramer() {
                             </div>
                         </div>
                     </div>
-                    {/* graph section */}
                 </div>
             </div>
         </div>

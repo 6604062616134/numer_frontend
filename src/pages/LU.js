@@ -157,16 +157,16 @@ function LU() {
                                         <button onClick={decreaseMetrixSize} className="btn btn-ghost btn-sm">-</button>
                                     </div>
                                 </div>
-                                <div className="flex flex-row justify-center w-full">
-                                    <button className="btn btn-primary" onClick={() => {
-                                        // Convert arrayA and arrayB to numbers before passing them to LUdecomposition
-                                        const parsedA = arrayA.map(row => row.map(value => parseFloat(value) || 0));
-                                        const parsedB = arrayB.map(value => parseFloat(value) || 0);
 
-                                        setResult(LUdecomposition(parsedA, parsedB));
-                                    }}>Solve</button>
-                                </div>
+                            </div>
+                            <div className="flex flex-row justify-center">
+                                <button className="btn btn-primary w-1/3" onClick={() => {
+                                    // Convert arrayA and arrayB to numbers before passing them to LUdecomposition
+                                    const parsedA = arrayA.map(row => row.map(value => parseFloat(value) || 0));
+                                    const parsedB = arrayB.map(value => parseFloat(value) || 0);
 
+                                    setResult(LUdecomposition(parsedA, parsedB));
+                                }}>Solve</button>
                             </div>
 
                             <div className="flex flex-col gap-4 mt-4">

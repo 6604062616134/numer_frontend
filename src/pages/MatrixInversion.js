@@ -149,7 +149,7 @@ function MatrixInversion() {
                                     </div>
                                 </div>
                                 <div className="flex flex-row justify-center w-full">
-                                    <button className="btn btn-primary" onClick={() => {
+                                    <button className="btn btn-primary w-1/3" onClick={() => {
                                         // Convert arrayA and arrayB to numbers before passing them to LUdecomposition
                                         const parsedA = arrayA.map(row => row.map(value => parseFloat(value) || 0));
                                         const parsedB = arrayB.map(value => parseFloat(value) || 0);
