@@ -207,6 +207,8 @@ function Multiple() {
                                         yaxis: { title: 'X2' },
                                         zaxis: { title: 'Y' },
                                     },
+                                    paper_bgcolor: '#ffefcc', // เปลี่ยนสีพื้นหลังของกราฟ
+                                    plot_bgcolor: '#ffefcc', // เปลี่ยนสีพื้นหลังของพื้นที่กราฟ
                                 }}
                             />
                         </div>
