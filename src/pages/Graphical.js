@@ -177,13 +177,16 @@ function Graphical() {
             </div>
 
             <div className="flex flex-col gap-4 w-full">
-              <h2 className="text-xl font-semibold">Output</h2>
+              <div className="flex flex-row justify-items-end">
+                <h2 className="text-xl font-semibold">Output</h2> 
+                  <button className="btn btn-primary ml-auto w-1/8" >Exercise</button>
+              </div>
               <div className="text-lg">
                 <p>Answer : {outputData.answer_x ? outputData.answer_x : 'No data'}</p>
               </div>
               <div className="flex flex-col gap-4 w-full">
                 <h2 className="text-xl font-semibold">Output Table</h2>
-
+                {/* table */}
                 <div className="h-80 overflow-x-auto rounded mt-2">
                   <table className="table table-pin-rows rounded">
                     <thead>
@@ -213,7 +216,7 @@ function Graphical() {
             </div>
           </div>
         </div>
-
+        {/* graph */}
         <div className='w-full flex justify-center bg-base-100'>
           <Plot
             data={[
