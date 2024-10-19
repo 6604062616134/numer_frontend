@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import Plot from 'react-plotly.js';
-import axios from 'axios';
 
 function Graphical() {
   // ตัวแปรเก็บอินพุทจากช่องอินพุท
@@ -9,31 +8,12 @@ function Graphical() {
   const [xEnd, setXEnd] = useState('');
   const [func, setFunc] = useState('');
   const [step, setStep] = useState('');
-  const [outputData, setOutputData] = useState({ iteration: [], answer_y: [], answer_x: null, message: 'No Data' }); // State สำหรับเก็บข้อมูล output
+  const [outputData, setOutputData] = useState({ iteration: [], answer_y: [], answer_x: null });
   const [arr, setArr] = useState([]); // State สำหรับเก็บข้อมูล arr ที่จะใช้ในตาราง
   const [lengthTable, setLengthTable] = useState(0); // State สำหรับเก็บ length_table
-  const [exercise, setExercise] = useState([]);
-
-  useEffect(() => {
-    // ฟังก์ชันที่จะทำงานเมื่อ component ถูกโหลด
-    // ใช้สำหรับการดึงข้อมูลจาก API
-
-    // ตัวอย่างการใช้งาน
-    axios.get('http://localhost:8000/get-exercise', {
-      params: {
-        category: 'graphical'
-      }
-    }).then(response => {
-      setExercise(response.data);
-    }).catch(error => {
-      console.error('There was an error!', error);
-    });
-  }, []);
 
   const handleSolve = async () => {
-    console.log(xStart, xEnd, func, step);
-
-    if (xStart === "" || xEnd === "" || func === "" || step === "") {
+    if (!xStart || !xEnd || !func || !step) {
       alert("Please fill all input fields.");
       return;
     }
@@ -113,21 +93,6 @@ function Graphical() {
     }
   };
 
-  const getExcercise = async () => {
-    if (exercise.length === 0) {
-      alert("No exercise data");
-      return;
-    }
-
-    const randomIndex = Math.floor(Math.random() * exercise.length);
-    const randomExercise = exercise[randomIndex];
-
-    setXStart(randomExercise.exercise.xStart);
-    setXEnd(randomExercise.exercise.xEnd);
-    setFunc(randomExercise.exercise.Function);
-    setStep(randomExercise.exercise.Step);
-  }
-
   // สร้างข้อมูลสำหรับกราฟ
   const xValues = Array.from({ length: 201 }, (_, i) => i - xRange); // x จาก -100 ถึง 100
   const yValues = xValues.map(x => calculateY(x, func)); // คำนวณ y จาก x
@@ -203,21 +168,21 @@ function Graphical() {
                 </button>
               </div>
 
-              {/* <div className='mt-4'>
+              <div className='mt-4'>
                 <h2 className="text-xl font-semibold">Output</h2>
                 <div className="text-lg">
-                  <p>Answer : {outputData.answer_x ? outputData.answer_x : outputData.message}</p>
+                  <p>Answer : {outputData.answer_x ? outputData.answer_x : 'No data'}</p>
                 </div>
-              </div> */}
+              </div>
             </div>
 
             <div className="flex flex-col gap-4 w-full">
-              <div className="flex flex-row justify-between">
+              <div className="flex flex-row justify-items-end">
                 <h2 className="text-xl font-semibold">Output</h2> 
-                  <button onClick={getExcercise} className="btn btn-primary w-1/8" >Exercise</button>
+                  <button className="btn btn-primary ml-auto w-1/8" >Exercise</button>
               </div>
               <div className="text-lg">
-                <p>Answer : {outputData.answer_x ? outputData.answer_x : outputData.message}</p>
+                <p>Answer : {outputData.answer_x ? outputData.answer_x : 'No data'}</p>
               </div>
               <div className="flex flex-col gap-4 w-full">
                 <h2 className="text-xl font-semibold">Output Table</h2>
