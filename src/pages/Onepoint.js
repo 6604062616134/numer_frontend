@@ -145,7 +145,7 @@ function Onepoint() {
               <h2 className="text-xl font-semibold">Input</h2>
 
               <div className="flex gap-4 w-full">
-                <div className="mt-2">
+                <div className="mt-2 w-full">
                   <label className="block">Function</label>
                   <input
                     type="text"
@@ -156,7 +156,7 @@ function Onepoint() {
                   />
                 </div>
 
-                <div className="mt-2">
+                <div className="mt-2 w-full">
                   <label className="block">Epsilon</label>
                   <input
                     type="text"
@@ -167,7 +167,7 @@ function Onepoint() {
                   />
                 </div>
 
-                <div className="mt-2">
+                <div className="mt-2 w-full">
                   <label className="block">x Start</label>
                   <input
                     type="text"
@@ -182,6 +182,11 @@ function Onepoint() {
               <div className="mt-6">
                 <button className="btn btn-primary btn-block" onClick={handleSolve}>Solve</button>
               </div>
+
+              <div className="text-lg mt-4">
+                <p>Answer : {outputData.answer_x ? outputData.answer_x.toFixed(6) : 'No data'}</p>
+                <p>Iteration : {outputData.iteration ? outputData.iteration.length : 'No data'}</p>
+              </div>
             </div>
 
             <div className="flex flex-col gap-4 w-full">
@@ -190,37 +195,35 @@ function Onepoint() {
                 <button onClick={getExcercise} className="btn btn-primary w-1/8" >Exercise</button>
               </div>
 
-              <div className="text-lg">
-                <p>Answer : {outputData.answer_x ? outputData.answer_x.toFixed(6) : 'No data'}</p>
-                <p>Iteration : {outputData.iteration ? outputData.iteration.length : 'No data'}</p>
-              </div>
-              <h2 className="text-xl font-semibold">Output Table</h2>
-              <table className="table table-pin-rows rounded">
-                <thead>
-                  <tr>
-                    <th className="bg-primary text-primary-content">Iteration</th>
-                    <th className="bg-primary text-primary-content">Y Value</th>
-                    <th className="bg-primary text-primary-content">Error</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {arr.length > 0 ? (
-                    arr
-                      .slice(-20)
-                      .map((yValue, index) => (
-                        <tr key={index}>
-                          <td>{outputData.iteration.slice(-20)[index]}</td>
-                          <td>{yValue.toFixed(6)}</td>
-                          <td>{errors.slice(-20)[index] ? errors.slice(-20)[index].toFixed(6) : 'No data'}</td>
-                        </tr>
-                      ))
-                  ) : (
+              {/* <h2 className="text-xl font-semibold">Output Table</h2> */}
+              <div className='h-72 overflow-y-auto mt-1'>
+                <table className="table table-pin-rows rounded">
+                  <thead>
                     <tr>
-                      <td colSpan={3} className="text-center">No data</td>
+                      <th className="bg-primary text-primary-content">Iteration</th>
+                      <th className="bg-primary text-primary-content">Y Value</th>
+                      <th className="bg-primary text-primary-content">Error</th>
                     </tr>
-                  )}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {arr.length > 0 ? (
+                      arr
+                        .slice(-20)
+                        .map((yValue, index) => (
+                          <tr key={index}>
+                            <td>{outputData.iteration.slice(-20)[index]}</td>
+                            <td>{yValue.toFixed(6)}</td>
+                            <td>{errors.slice(-20)[index] ? errors.slice(-20)[index].toFixed(6) : 'No data'}</td>
+                          </tr>
+                        ))
+                    ) : (
+                      <tr>
+                        <td colSpan={3} className="text-center">No data</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
 

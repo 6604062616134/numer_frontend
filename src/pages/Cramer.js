@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import * as math from 'mathjs';
 import Plot from 'react-plotly.js';
+import axios from 'axios';
 
 function Cramer() {
     const [metrixSize, setMetrixSize] = useState(3);
@@ -9,6 +10,19 @@ function Cramer() {
     const [arrayB, setArrayB] = useState([]);
     const [result, setResult] = useState([]);
     const [plotData, setPlotData] = useState([]);
+
+    const [exercise, setExercise] = useState([]);
+    useEffect(() => {
+        axios.get('http://localhost:8000/get-exercise', {
+            params: {
+                category: 'linear_algebraic'
+            }
+        }).then(response => {
+            setExercise(response.data);
+        }).catch(error => {
+        console.error('There was an error!', error);
+        });
+    }, []);
 
     // Initialize arrays based on metrixSize
     useEffect(() => {
@@ -19,6 +33,30 @@ function Cramer() {
     useEffect(() => {
         updatePlotData();
     }, [result]);
+
+    const getExcercise = async () => {
+        console.log("Exercise --> ", exercise);
+        if (exercise.length === 0) {
+            alert("No exercise data");
+            return;
+        }
+
+        const randomIndex = Math.floor(Math.random() * exercise.length);
+        const randomExercise = exercise[randomIndex];
+
+        const metrixSize = randomExercise.exercise.metrix_size;
+        const matrixA = randomExercise.exercise.array_a;
+        const matrixB = randomExercise.exercise.array_b;
+        
+        console.log("randomExercise --> ", randomExercise);
+        console.log("metrixSize --> ", metrixSize);
+        console.log("matrixA --> ", matrixA);
+        console.log("matrixB --> ", matrixB);
+
+        setMetrixSize(metrixSize);
+        setArrayA(matrixA);
+        setArrayB(matrixB);
+    }
 
     const calculateCramersRule = () => {
         const rows = arrayA.length;
@@ -74,6 +112,8 @@ function Cramer() {
         const value = e.target.value;
         const newArrayA = [...arrayA];
         newArrayA[i][j] = value;
+
+        console.log("newArrayA --> ", newArrayA);
         setArrayA(newArrayA);
     };
 
@@ -81,6 +121,8 @@ function Cramer() {
         const value = e.target.value;
         const newArrayB = [...arrayB];
         newArrayB[i] = value;
+
+        console.log("newArrayB --> ", newArrayB);
         setArrayB(newArrayB);
     };
 
@@ -137,6 +179,7 @@ function Cramer() {
                                                     placeholder={j + 1}
                                                     className="input input-bordered w-12 input-primary mt-2"
                                                     onChange={(e) => handleArrayAChange(e, i, j)}
+                                                    value={arrayA[i][j]}
                                                 />
                                             ))}
                                         </div>
@@ -152,6 +195,7 @@ function Cramer() {
                                                 placeholder={i + 1}
                                                 className="input input-bordered w-12 input-primary mt-2"
                                                 onChange={(e) => handleArrayBChange(e, i)}
+                                                value={arrayB[i]}
                                             />
                                         ))}
                                     </div>
@@ -163,8 +207,9 @@ function Cramer() {
                                     <button onClick={decreaseMetrixSize} className="btn btn-ghost btn-sm">-</button>
                                 </div>
                             </div>
-                            <div className='flex flex-row justify-center w-full'>
+                            <div className='flex flex-row justify-center w-full gap-4'>
                                 <button className="btn btn-primary w-1/3" onClick={calculateCramersRule}>Solve</button>
+                                <button onClick={getExcercise} className="btn btn-primary w-1/8" >Exercise</button>
                             </div>
                             <div className="flex flex-col gap-4 mt-4">
                                 <h2 className="text-xl font-semibold">Output</h2>
