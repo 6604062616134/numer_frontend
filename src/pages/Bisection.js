@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import Plot from 'react-plotly.js';
+import axios from 'axios';
 
 function Bisection() {
   const [xL, setXL] = useState('');
@@ -14,6 +15,36 @@ function Bisection() {
     answer_xM: null,
     i_found: null
   });
+
+  const [exercise, setExercise] = useState([]);
+
+  useEffect(() => {
+    // ฟังก์ชันที่จะทำงานเมื่อ component ถูกโหลด
+    // ใช้สำหรับการดึงข้อมูลจาก API
+    // ตัวอย่างการใช้งาน
+    axios.get('http://localhost:8000/get-exercise', {
+      params: {
+        category: 'bifalse'
+      }
+    }).then(response => {
+      setExercise(response.data);
+    }).catch(error => {
+      console.error('There was an error!', error);
+    });
+  }, []);
+
+  const getExcercise = async () => {
+    if (exercise.length === 0) {
+      alert("No exercise data");
+      return;
+    }
+    const randomIndex = Math.floor(Math.random() * exercise.length);
+    const randomExercise = exercise[randomIndex];
+    setXL(randomExercise.exercise.xL);
+    setXR(randomExercise.exercise.xR);
+    setFx(randomExercise.exercise.Function);
+    setEpsilon(randomExercise.exercise.Epsilon);
+  };
 
   const handleSolve = async () => {
     let xLNum = parseFloat(xL);
@@ -164,7 +195,10 @@ function Bisection() {
             </div>
 
             <div className="flex flex-col gap-4 w-full">
-              <h2 className="text-xl font-semibold">Output</h2>
+              <div className="flex flex-row justify-between">
+                <h2 className="text-xl font-semibold">Output</h2>
+                <button onClick={getExcercise} className="btn btn-primary w-1/8" >Exercise</button>
+              </div>
               <div className="text-lg">
                 <p>Answer : {outputData.answer_xM ? outputData.answer_xM : 'No data'}</p>
               </div>

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import Plot from 'react-plotly.js';
+import axios from 'axios';
 
 function FalsePosition() {
   const [xL, setXL] = useState('');
@@ -15,7 +16,39 @@ function FalsePosition() {
     i_found: null
   });
 
+  const [exercise, setExercise] = useState([]);
+
+  useEffect(() => {
+    // ฟังก์ชันที่จะทำงานเมื่อ component ถูกโหลด
+    // ใช้สำหรับการดึงข้อมูลจาก API
+    // ตัวอย่างการใช้งาน
+    axios.get('http://localhost:8000/get-exercise', {
+      params: {
+        category: 'bifalse'
+      }
+    }).then(response => {
+      setExercise(response.data);
+    }).catch(error => {
+      console.error('There was an error!', error);
+    });
+  }, []);
+
+  const getExcercise = async () => {
+    if (exercise.length === 0) {
+      alert("No exercise data");
+      return;
+    }
+    const randomIndex = Math.floor(Math.random() * exercise.length);
+    const randomExercise = exercise[randomIndex];
+    setXL(randomExercise.exercise.xL);
+    setXR(randomExercise.exercise.xR);
+    setFx(randomExercise.exercise.Function);
+    setEpsilon(randomExercise.exercise.Epsilon);
+  };
+
   const handleSolve = async () => {
+    const e = 2.71828; // กำหนดค่าคงที่ e
+    
     let xLNum = parseFloat(xL);
     let xRNum = parseFloat(xR);
     let epsilonNum = parseFloat(epsilon);
@@ -26,8 +59,15 @@ function FalsePosition() {
 
     const evaluateFx = (x) => {
       try {
-        // Replace ^ with **
-        const sanitizedFx = fx.replace(/\^/g, '**');
+        // Replace ^ with ** for power
+        let sanitizedFx = fx.replace(/\^/g, '**');
+        
+        // Replace 'e' with the constant 2.71828
+        sanitizedFx = sanitizedFx.replace(/(?<![a-zA-Z])e(?![a-zA-Z])/g, `${e}`);
+        
+        // Also handle 'Math.exp' for exponential functions
+        sanitizedFx = sanitizedFx.replace(/Math\.exp\(([^)]+)\)/g, `Math.exp($1)`);
+
         return eval(sanitizedFx.replace(/x/g, `(${x})`));
       } catch (error) {
         console.error("Error evaluating the function:", error);
@@ -85,6 +125,7 @@ function FalsePosition() {
       i_found: i - 1
     });
   };
+
 
   // Function to calculate y-values for plotting the graph
   const calculateY = (x, fx) => {
@@ -172,8 +213,10 @@ function FalsePosition() {
             </div>
 
             <div className="flex flex-col gap-4 w-full">
-              {/* Output x value */}
-              <h2 className="text-xl font-semibold">Output</h2>
+              <div className="flex flex-row justify-between">
+                <h2 className="text-xl font-semibold">Output</h2>
+                <button onClick={getExcercise} className="btn btn-primary w-1/8" >Exercise</button>
+              </div>
               <div className="text-lg">
                 <p>Answer : {outputData && outputData.answer_x1 ? outputData.answer_x1 : 'No data'}</p>
               </div>

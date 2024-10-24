@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import * as math from 'mathjs';
 import Plot from 'react-plotly.js';
+import axios from 'axios';
 
 function Conjugate() {
 
@@ -16,27 +17,32 @@ function Conjugate() {
     const [outputData, setOutputData] = useState({ iteration: [], xM: [], error: [] });
 
     useEffect(() => {
-        console.log("Result updated:", result);
-        updatePlotData();
+        if (result.length > 0) {
+            updatePlotData(result);
+        }
     }, [result]);
 
     const calculateConjugate = () => {
         const rows = arrayA.length;
         const cols = arrayA[0].length;
 
+        // แปลงค่าจากสตริงเป็นตัวเลข
         const matrixA = arrayA.map(row => row.map(value => parseFloat(value)));
         const matrixB = arrayB.map(value => parseFloat(value));
 
-        if (matrixA.some(row => row.includes(NaN)) || matrixB.includes(NaN)) {
+        // ตรวจสอบค่า NaN
+        if (matrixA.some(row => row.some(value => isNaN(value))) || matrixB.some(value => isNaN(value))) {
             alert("Please enter valid numbers in the matrices.");
             return;
         }
 
+        // ตรวจสอบขนาดของเมตริกซ์
         if (rows !== cols || matrixA.length !== matrixB.length) {
-            alert("Array size does not match matrix dimensions.");
+            alert("Matrix dimensions and vector size do not match.");
             return;
         }
 
+        // ตรวจสอบว่า matrixA เป็นซิมเมตริก
         const isSymmetric = matrixA.every((row, i) => row.every((value, j) => value === matrixA[j][i]));
         if (!isSymmetric) {
             alert("Matrix A must be symmetric for the conjugate gradient method.");
@@ -45,7 +51,7 @@ function Conjugate() {
 
         let x = Array(metrixSize).fill(0);
         let r = math.subtract(matrixB, math.multiply(matrixA, x));
-        let p = [...r];
+        let p = [...r];  // r ต้องมีขนาดเท่ากับแถวของ matrixA
         let rsOld = math.dot(r, r);
         const tolerance = 1e-6;
         const maxIterations = 1000;
@@ -65,7 +71,7 @@ function Conjugate() {
             newOutputData.error.push(error);        // Store the current error
 
             if (error < tolerance) {
-                break; // Convergence check
+                break;
             }
 
             const beta = rsNew / rsOld;
@@ -107,30 +113,28 @@ function Conjugate() {
         }
     };
 
-    const updatePlotData = () => {
-        // Prepare data for the plot based on the equations
-        if (result.length >= 2) {
-            const xValues = Array.from({ length: 100 }, (_, i) => i - 50); // X values from -50 to 49
-            const yValues1 = xValues.map(x => (result[0] * x + arrayB[0]) / arrayA[0][1]);
-            const yValues2 = xValues.map(x => (result[1] * x + arrayB[1]) / arrayA[1][1]);
+    const updatePlotData = (result) => {
+        // สมมติว่าคุณมีค่าของ x และ y สำหรับกราฟคอนทัวร์
+        const xValues = [...Array(metrixSize).keys()]; // ตัวอย่าง x = 0, 1, 2, ...
+        const yValues = [...Array(metrixSize).keys()]; // ตัวอย่าง y = 0, 1, 2, ...
 
-            setPlotData([
-                {
-                    x: xValues,
-                    y: yValues1,
-                    type: 'scatter',
-                    mode: 'lines',
-                    name: 'Equation 1',
-                },
-                {
-                    x: xValues,
-                    y: yValues2,
-                    type: 'scatter',
-                    mode: 'lines',
-                    name: 'Equation 2',
-                },
-            ]);
-        }
+        // สร้าง z values ซึ่งอาจจะเป็นฟังก์ชันจาก x และ y
+        const zValues = xValues.map(x =>
+            yValues.map(y => {
+                // สมมติว่าเราคำนวณค่า z จาก x และ y โดยใช้สูตรตัวอย่าง
+                return Math.sin(x) + Math.cos(y); // แทนที่ด้วยฟังก์ชันที่คุณต้องการ
+            })
+        );
+
+        const newData = [{
+            z: zValues,          // ค่า z สำหรับกราฟคอนทัวร์
+            x: xValues,         // ค่า x
+            y: yValues,         // ค่า y
+            type: 'contour',    // ประเภทกราฟเป็น contour
+            colorscale: 'Viridis' // สเกลสีที่ใช้
+        }];
+
+        setPlotData(newData); // อัปเดตสถานะของข้อมูลกราฟ
     };
 
     return (
@@ -247,25 +251,15 @@ function Conjugate() {
                         layout={{
                             width: '100%',
                             height: 400,
-                            title: 'Graph of the equations',
                             paper_bgcolor: '#ffefcc',
                             plot_bgcolor: '#ffefcc',
-                            xaxis: {
-                                range: [-50, 50],
-                                title: 'X values',
-                            },
-                            yaxis: {
-                                range: [-100, 100],
-                                title: 'Y values',
-                            },
-                            margin: {
-                                l: 40,
-                                r: 40,
-                                t: 40,
-                                b: 40,
-                            },
+                            title: 'Contour Plot',
+                            xaxis: { title: 'X values' },
+                            yaxis: { title: 'Y values' },
+                            margin: { l: 40, r: 40, t: 40, b: 40 },
                         }}
                     />
+
                 </div>
             </div>
         </div>

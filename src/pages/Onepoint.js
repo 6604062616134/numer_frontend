@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import Plot from 'react-plotly.js';
+import axios from 'axios';
 
 function Onepoint() {
   const [xStart, setXstart] = useState('');
@@ -9,6 +10,36 @@ function Onepoint() {
   const [outputData, setOutputData] = useState({ iteration: [], y: [], answer_x: null, error: [] });
   const [arr, setArr] = useState([]);
   const [errors, setErrors] = useState([]);
+
+  const [exercise, setExercise] = useState([]);
+
+  useEffect(() => {
+    // ฟังก์ชันที่จะทำงานเมื่อ component ถูกโหลด
+    // ใช้สำหรับการดึงข้อมูลจาก API
+    // ตัวอย่างการใช้งาน
+    axios.get('http://localhost:8000/get-exercise', {
+      params: {
+        category: 'onenewton'
+      }
+    }).then(response => {
+      setExercise(response.data);
+    }).catch(error => {
+      console.error('There was an error!', error);
+    });
+  }, []);
+
+  const getExcercise = async () => {
+    if (exercise.length === 0) {
+      alert("No exercise data");
+      return;
+    }
+    const randomIndex = Math.floor(Math.random() * exercise.length);
+    const randomExercise = exercise[randomIndex];
+    setXstart(randomExercise.exercise.xStart);
+    setFx(randomExercise.exercise.Function);
+    setEpsilon(randomExercise.exercise.Epsilon);
+  };
+
 
   const parseFx = (fx) => {
     const regex = /x\^(\d+)\s*-\s*(\d+)/;
@@ -154,7 +185,10 @@ function Onepoint() {
             </div>
 
             <div className="flex flex-col gap-4 w-full">
-              <h2 className="text-xl font-semibold">Output</h2>
+              <div className="flex flex-row justify-between">
+                <h2 className="text-xl font-semibold">Output</h2>
+                <button onClick={getExcercise} className="btn btn-primary w-1/8" >Exercise</button>
+              </div>
 
               <div className="text-lg">
                 <p>Answer : {outputData.answer_x ? outputData.answer_x.toFixed(6) : 'No data'}</p>

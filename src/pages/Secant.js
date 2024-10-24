@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import Plot from 'react-plotly.js';
+import axios from 'axios';
 
 function Secant() {
   const [fx, setFx] = useState('');
@@ -8,6 +9,36 @@ function Secant() {
   const [x0, setX0] = useState('');
   const [x1, setX1] = useState('');
   const [outputData, setOutputData] = useState({ iteration: [], y: [], answer_x: null, error: [] });
+
+  const [exercise, setExercise] = useState([]);
+
+  useEffect(() => {
+    // ฟังก์ชันที่จะทำงานเมื่อ component ถูกโหลด
+    // ใช้สำหรับการดึงข้อมูลจาก API
+    // ตัวอย่างการใช้งาน
+    axios.get('http://localhost:8000/get-exercise', {
+      params: {
+        category: 'secant'
+      }
+    }).then(response => {
+      setExercise(response.data);
+    }).catch(error => {
+      console.error('There was an error!', error);
+    });
+  }, []);
+
+  const getExcercise = async () => {
+    if (exercise.length === 0) {
+      alert("No exercise data");
+      return;
+    }
+    const randomIndex = Math.floor(Math.random() * exercise.length);
+    const randomExercise = exercise[randomIndex];
+    setX0(randomExercise.exercise.x0);
+    setX1(randomExercise.exercise.x1);
+    setFx(randomExercise.exercise.Function);
+    setEpsilon(randomExercise.exercise.Epsilon);
+  };
 
   const parseFx = (fx) => {
     const regex = /x\^(\d+)\s*-\s*(\d+)/;
@@ -149,7 +180,10 @@ function Secant() {
             </div>
 
             <div className="flex flex-col gap-4 w-full">
-              <h2 className="text-xl font-semibold">Output</h2>
+              <div className="flex flex-row justify-between">
+                <h2 className="text-xl font-semibold">Output</h2>
+                <button onClick={getExcercise} className="btn btn-primary w-1/8" >Exercise</button>
+              </div>
               <div className="text-lg">
                 <p>Answer : {outputData.answer_x ? outputData.answer_x.toFixed(6) : 'No data'}</p>
                 <p>Iteration : {outputData.iteration.length > 0 ? outputData.iteration.length : 'No data'}</p>
